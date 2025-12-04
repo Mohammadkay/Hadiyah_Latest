@@ -1,0 +1,15 @@
+﻿@model HadiyahServices.DTOs.Product.ProductListDto
+
+<h2>Delete Product</h2>
+
+<div class="card p-4 mb-3 shadow-sm">
+    <p><strong>Name:</strong> @Model.Name</p>
+    <p><strong>Category:</strong> @Model.CategoryName</p>
+    <p><strong>Price:</strong> @Model.Price</p>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

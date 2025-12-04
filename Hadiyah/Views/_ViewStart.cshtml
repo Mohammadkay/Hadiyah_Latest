@@ -1,0 +1,16 @@
+﻿@{
+    var path = Context.Request.Path.ToString().ToLower();
+
+    if (path.StartsWith("/admindashboard") ||
+        path.StartsWith("/adminproduct") ||
+        path.StartsWith("/admincategory") ||
+        path.StartsWith("/adminorder") ||
+        path.StartsWith("/adminuser"))
+    {
+        Layout = "_AdminLayout";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+}

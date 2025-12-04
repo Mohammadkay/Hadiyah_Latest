@@ -1,0 +1,38 @@
+﻿@model HadiyahServices.DTOs.Category.CategoryUpdateDto
+
+@{
+    ViewBag.Title = "Edit Category";
+}
+
+<h2>Edit Category</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ImageBase64))
+    {
+        <div class="mb-3">
+            <label>Current Image</label><br />
+            <img src="data:image/png;base64,@Model.ImageBase64" width="150" class="rounded shadow" />
+        </div>
+    }
+
+    <div class="mb-3">
+        <label>Change Image</label>
+        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+    </div>
+
+    <button class="btn btn-primary w-100">Save Changes</button>
+
+</form>

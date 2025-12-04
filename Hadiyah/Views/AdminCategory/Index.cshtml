@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HadiyahServices.DTOs.Category.CategoryListDto>
+
+<h2 class="mb-4">Categories</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ Add Category</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(c.ImageBase64))
+                    {
+                        <img src="data:image/png;base64,@c.ImageBase64" width="60" class="rounded shadow" />
+                    }
+                </td>
+                <td>@c.Name</td>
+                <td>@c.Description</td>
+                <td>@(c.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

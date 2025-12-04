@@ -1,0 +1,46 @@
+﻿@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
+
+@{
+    ViewBag.Title = "Products";
+}
+
+<h2 class="mb-4">Products</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ Add Product</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(p.ImageBase64))
+                    {
+                        <img src="data:image/png;base64,@p.ImageBase64" width="60" style="border-radius:5px;" />
+                    }
+                </td>
+                <td>@p.Name</td>
+                <td>@p.CategoryName</td>
+                <td>@p.Price.ToString("0.00")</td>
+                <td>@p.StockQuantity</td>
+                <td>@(p.IsActive ? "Yes" : "No")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-warning btn-sm">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@p.Id" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

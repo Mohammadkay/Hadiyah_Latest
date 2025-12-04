@@ -1,0 +1,124 @@
+﻿@model HadiyahServices.DTOs.User.RegisterDto
+
+@{
+    ViewBag.Title = "Register";
+}
+
+<style>
+    .auth-wrapper {
+        max-width: 480px;
+        margin: 60px auto;
+    }
+
+    .brand-logo {
+        height: 55px;
+    }
+
+    .title-text {
+        font-weight: 700;
+        font-size: 28px;
+        color: #0F2237;
+    }
+
+    .sub-text {
+        color: #6c757d;
+        font-size: 15px;
+    }
+
+    .card-custom {
+        border-radius: 16px;
+        padding: 30px;
+    }
+
+    .btn-primary {
+        background-color: #FF5A47 !important;
+        border-color: #FF5A47 !important;
+        font-weight: 600;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+        .btn-primary:hover {
+            background-color: #e54e3d !important;
+        }
+
+    .form-label {
+        font-weight: 600;
+    }
+
+    a {
+        color: #FF5A47;
+    }
+
+        a:hover {
+            color: #d94839;
+        }
+</style>
+
+
+<div class="auth-wrapper">
+
+    <!-- Logo + Title -->
+    <div class="text-center mb-4">
+        <img src="/images/hadiyah-logo.png" class="brand-logo mb-2" />
+        <div class="title-text">Create an Account</div>
+        <div class="sub-text">Join Hadiyah and start sharing gifts 🎁</div>
+    </div>
+
+    <!-- Registration Card -->
+    <div class="card shadow-sm card-custom">
+
+        <form asp-action="Register" method="post">
+
+            <div class="mb-3">
+                <label class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="example@mail.com" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="Your phone number" />
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="********" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <!-- Validation summary -->
+            <div class="text-danger mb-3">
+                @Html.ValidationSummary()
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Create Account</button>
+
+            <div class="text-center mt-3">
+                Already have an account?
+                <a asp-action="Login"> Login</a>
+            </div>
+
+        </form>
+
+    </div>
+</div>

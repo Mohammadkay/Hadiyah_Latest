@@ -1,0 +1,93 @@
+﻿@model HadiyahServices.DTOs.Dashboard.AdminDashboardViewModel
+
+@{
+    ViewBag.Title = "Admin Dashboard";
+}
+
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 25px;
+        color: white;
+    }
+
+    .stat-title {
+        font-size: 18px;
+        opacity: .8;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+    }
+</style>
+
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row g-4">
+
+    <div class="col-md-4">
+        <div class="stat-card bg-primary">
+            <div class="stat-title">Total Users</div>
+            <div class="stat-value">@Model.TotalUsers</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card bg-success">
+            <div class="stat-title">Categories</div>
+            <div class="stat-value">@Model.TotalCategories</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card bg-warning">
+            <div class="stat-title">Products</div>
+            <div class="stat-value">@Model.TotalProducts</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card bg-danger">
+            <div class="stat-title">Total Orders</div>
+            <div class="stat-value">@Model.TotalOrders</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card bg-info">
+            <div class="stat-title">Pending Orders</div>
+            <div class="stat-value">@Model.PendingOrders</div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stat-card bg-dark">
+            <div class="stat-title">Revenue</div>
+            <div class="stat-value">$@Model.Revenue</div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-4" />
+
+<h4>Quick Actions</h4>
+
+<div class="row g-3">
+
+    <div class="col-md-3">
+        <a asp-controller="AdminCategory" asp-action="Index" class="btn btn-primary w-100">Manage Categories</a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="AdminProduct" asp-action="Index" class="btn btn-warning w-100">Manage Products</a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="AdminOrder" asp-action="Index" class="btn btn-danger w-100">Manage Orders</a>
+    </div>
+
+    <div class="col-md-3">
+        <a asp-controller="AdminUsers" asp-action="Index" class="btn btn-dark w-100">Manage Users</a>
+    </div>
+</div>
