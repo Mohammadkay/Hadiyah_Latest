@@ -91,7 +91,7 @@ namespace HadiyahServices.Implementation
             });
         }
 
-        public async Task<BaseResponse<bool>> DeleteAsync(int id)
+        public async Task<BaseResponse<bool>> DeleteAsync(long id)
         {
             var product = await _productRepo.GetByIdAsync(id);
             if (product == null)
@@ -121,7 +121,7 @@ namespace HadiyahServices.Implementation
             return BaseResponse<IEnumerable<ProductListDto>>.Success(result);
         }
 
-        public async Task<BaseResponse<ProductListDto>> GetByIdAsync(int id)
+        public async Task<BaseResponse<ProductListDto>> GetByIdAsync(long id)
         {
             var p = await _productRepo.GetByIdAsync(id);
             if (p == null)
@@ -141,11 +141,11 @@ namespace HadiyahServices.Implementation
             });
         }
 
-        public async Task<BaseResponse<IEnumerable<ProductListDto>>> GetByCategoryAsync(int categoryId)
+        public async Task<BaseResponse<List<ProductListDto>>> GetByCategoryAsync(long categoryId)
         {
             var products = await _productRepo.GetByCategoryAsync(categoryId);
 
-            var result = products.Select(p => new ProductListDto
+            var dtoList = products.Select(p => new ProductListDto
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -155,10 +155,11 @@ namespace HadiyahServices.Implementation
                 StockQuantity = p.StockQuantity,
                 IsActive = p.IsActive,
                 CategoryId = p.CategoryId,
-                CategoryName = p.Category.Name
-            });
+                CategoryName = p.Category?.Name
+            }).ToList();
 
-            return BaseResponse<IEnumerable<ProductListDto>>.Success(result);
+            return BaseResponse<List<ProductListDto>>.Success(dtoList);
         }
+
     }
 }

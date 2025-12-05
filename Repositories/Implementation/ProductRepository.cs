@@ -19,7 +19,7 @@ namespace HadiyahRepositories.Implementation
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetByCategoryAsync(int categoryId)
+        public async Task<IEnumerable<Product>> GetByCategoryAsync(long categoryId)
         {
             return await _context.Products
                 .Where(p => p.CategoryId == categoryId)

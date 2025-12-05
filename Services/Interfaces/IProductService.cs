@@ -12,9 +12,9 @@ namespace HadiyahServices.Interfaces
     {
         Task<BaseResponse<ProductListDto>> CreateAsync(ProductCreateDto dto);
         Task<BaseResponse<ProductListDto>> UpdateAsync(ProductUpdateDto dto);
-        Task<BaseResponse<bool>> DeleteAsync(int id);
+        Task<BaseResponse<bool>> DeleteAsync(long id);
         Task<BaseResponse<IEnumerable<ProductListDto>>> GetAllAsync();
-        Task<BaseResponse<ProductListDto>> GetByIdAsync(int id);
-        Task<BaseResponse<IEnumerable<ProductListDto>>> GetByCategoryAsync(int categoryId);
+        Task<BaseResponse<ProductListDto>> GetByIdAsync(long id);
+        Task<BaseResponse<List<ProductListDto>>> GetByCategoryAsync(long categoryId);
     }
 }

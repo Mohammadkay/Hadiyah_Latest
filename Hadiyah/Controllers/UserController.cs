@@ -81,7 +81,7 @@ namespace Hadiyah.Controllers
                 return RedirectToAction("Index", "AdminDashboard");
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Shop");
         }
 
 
