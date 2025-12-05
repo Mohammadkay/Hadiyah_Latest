@@ -6,6 +6,11 @@
     var grandTotal = Model?.Sum(x => x.Total) ?? 0m;
     var totalUnits = Model?.Sum(x => x.Quantity) ?? 0;
     var distinctProducts = Model?.Count ?? 0;
+    var isAuthenticated = ViewContext.HttpContext.User?.Identity?.IsAuthenticated ?? false;
+    var checkoutActionUrl = Url.Action("Index", "Checkout") ?? "/Checkout";
+    var loginRedirectUrl = Url.Action("Login", "User", new { returnUrl = checkoutActionUrl }) ?? "/User/Login";
+    var checkoutCtaUrl = isAuthenticated ? checkoutActionUrl : loginRedirectUrl;
+    var checkoutCtaLabel = isAuthenticated ? "Proceed to checkout" : "Login to checkout";
     var cartMessage = TempData["CartMessage"] as string;
     string cartMessageType = null;
     if (!string.IsNullOrEmpty(cartMessage))
@@ -127,7 +132,7 @@
                                                 </div>
                                             </td>
 
-                                            <td class="text-center fw-semibold">@item.Price.ToString("0.00") SAR</td>
+                                            <td class="text-center fw-semibold">@item.Price.ToString("0.00") JOD</td>
 
                                             <td>
                                                 <div class="d-flex flex-column">
@@ -161,12 +166,12 @@
                                                     }
                                                     else if (lowStock)
                                                     {
-                                                        <span class="text-warning small mt-1">Limited stock — order soon.</span>
+                                                        <span class="text-warning small mt-1">Limited stock - order soon.</span>
                                                     }
                                                 </div>
                                             </td>
 
-                                            <td class="text-center fw-semibold">@item.Total.ToString("0.00") SAR</td>
+                                            <td class="text-center fw-semibold">@item.Total.ToString("0.00") JOD</td>
 
                                             <td class="text-end">
                                                 <a asp-action="Remove"
@@ -208,16 +213,24 @@
 
                         <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-3">
                             <span class="fw-semibold">Grand total</span>
-                            <span class="fw-bold" style="color:#0F2237;">@grandTotal.ToString("0.00") SAR</span>
+                            <span class="fw-bold" style="color:#0F2237;">@grandTotal.ToString("0.00") JOD</span>
                         </div>
 
                         <div class="bg-light rounded-3 p-3 small text-muted mb-3">
-                            Free shipping for orders over 250 SAR. Need a gift note? You can add it at checkout.
+                            Free shipping for orders over 250 JOD. Need a gift note? You can add it at checkout.
                         </div>
 
-                        <a class="btn btn-primary w-100 py-2">
-                            Proceed to checkout
+                        <a href="@checkoutCtaUrl"
+                           class="btn btn-primary w-100 py-2">
+                            @checkoutCtaLabel
                         </a>
+                        @if (!isAuthenticated)
+                        {
+                            <div class="small text-muted mt-2">
+                                You'll be asked to login before completing checkout.
+                            </div>
+                        }
+
                     </div>
                 </div>
             </div>

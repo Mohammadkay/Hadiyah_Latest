@@ -1,12 +1,7 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahMigrations;
 using HadiyahRepositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HadiyahRepositories.Implementation
 {
@@ -21,6 +16,14 @@ namespace HadiyahRepositories.Implementation
             return await _dbSet
                 .Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<IEnumerable<User>> GetAllWithRolesAsync()
+        {
+            return await _dbSet
+                .Include(u => u.Role)
+                .OrderByDescending(u => u.Id)
+                .ToListAsync();
         }
     }
 }

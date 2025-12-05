@@ -1,0 +1,89 @@
+@model IEnumerable<HadiyahDomain.Entities.Order>
+@using HadiyahDomain.enums
+@using System.Linq
+
+@{
+    ViewBag.Title = "My Orders";
+    var now = DateTime.UtcNow;
+}
+
+<div class="py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1" style="color:#0F2237;">My Orders</h2>
+            <p class="text-muted mb-0">We auto-mark orders as received three days after purchase.</p>
+        </div>
+        <a asp-controller="Shop" asp-action="Index" class="btn btn-outline-secondary rounded-pill">Continue shopping</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white rounded-4 shadow-sm p-4 text-center">
+            <p class="mb-2">You haven't placed any orders yet.</p>
+            <a asp-controller="Shop" asp-action="Index" class="btn btn-primary rounded-pill px-4">
+                Start shopping
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Expected delivery</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var o in Model)
+                            {
+                                var expected = o.OrderDate.AddDays(3);
+                                var isPastDue = now >= expected;
+                                var displayStatus = (isPastDue && o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.Completed)
+                                    ? "Received"
+                                    : o.Status.ToString();
+                                var statusBadge = displayStatus switch
+                                {
+                                    "Received" => "success",
+                                    "Cancelled" => "secondary",
+                                    _ => "primary"
+                                };
+                                <tr class="@(isPastDue && o.Status != OrderStatus.Completed ? "table-warning" : string.Empty)">
+                                    <td class="fw-semibold">#@o.Id</td>
+                                    <td>@o.OrderDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@o.TotalAmount.ToString("0.00") JOD</td>
+                                    <td><span class="badge text-bg-@statusBadge rounded-pill px-3">@displayStatus</span></td>
+                                    <td>
+                                        <div>@expected.ToString("yyyy-MM-dd")</div>
+                                        <div class="small text-muted">
+                                            @(isPastDue
+                                                ? "Should be delivered"
+                                                : $"Arrives in {(expected - now).Days + 1} day(s)")
+                                        </div>
+                                    </td>
+                                    <td>@(o.IsGift ? "Gift" : "Personal")</td>
+                                    <td class="text-end">
+                                        <a asp-action="Details"
+                                           asp-route-id="@o.Id"
+                                           class="btn btn-sm btn-outline-secondary rounded-pill">
+                                            Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+</div>

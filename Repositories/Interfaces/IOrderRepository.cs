@@ -1,10 +1,5 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahDomain.enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HadiyahRepositories.Interfaces
 {
@@ -12,5 +7,7 @@ namespace HadiyahRepositories.Interfaces
     {
         Task<IEnumerable<Order>> GetOrdersWithItemsAsync();
         Task<IEnumerable<Order>> GetOrdersByStatusAsync(OrderStatus status);
+        Task<List<Order>> GetByUserIdAsync(long userId);
+        Task<Order?> GetDetailsAsync(long orderId, long userId);
     }
 }

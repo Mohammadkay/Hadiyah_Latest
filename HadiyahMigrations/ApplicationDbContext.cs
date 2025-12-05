@@ -1,5 +1,4 @@
-﻿using Domain.Entities;
-using HadiyahDomain.Entities;
+﻿using HadiyahDomain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace HadiyahMigrations

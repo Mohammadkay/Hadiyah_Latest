@@ -1,6 +1,9 @@
-﻿using HadiyahServices.Interfaces;
+using HadiyahServices.DTOs.Category;
+using HadiyahServices.DTOs.Product;
+using HadiyahServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace Hadiyah.Controllers
 {
@@ -16,17 +19,69 @@ namespace Hadiyah.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(long? categoryId, decimal? minPrice, decimal? maxPrice)
         {
-            var categories = await _categoryService.GetAllAsync();
-            return View(categories.Data);
+            var categoriesResponse = await _categoryService.GetAllAsync();
+            var productsResponse = await _productService.GetAllAsync();
+
+            var categories = categoriesResponse.Data ?? Enumerable.Empty<CategoryListDto>();
+            var products = productsResponse.Data ?? Enumerable.Empty<ProductListDto>();
+
+            if (categoryId.HasValue)
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+
+            if (minPrice.HasValue)
+                products = products.Where(p => p.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                products = products.Where(p => p.Price <= maxPrice.Value);
+
+            ViewBag.Categories = categories;
+            ViewBag.SelectedCategory = categoryId;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.Title = "Shop";
+
+            return View(products.ToList());
         }
 
         public async Task<IActionResult> Products(int categoryId)
         {
             var products = await _productService.GetByCategoryAsync(categoryId);
+
+            if (!products.IsSuccess)
+            {
+                TempData["ShopMessage"] = "We couldn't find that category.";
+                TempData["ShopMessageType"] = "warning";
+                return RedirectToAction("Index");
+            }
+
+            var list = (products.Data ?? Enumerable.Empty<ProductListDto>()).ToList();
+            var categoryName = list.FirstOrDefault()?.CategoryName;
+
             ViewBag.CategoryId = categoryId;
-            return View(products.Data);
+            ViewBag.ProductHeading = string.IsNullOrWhiteSpace(categoryName) ? "Available Gifts" : $"{categoryName} Gifts";
+            ViewBag.ProductSubtitle = list.Any()
+                ? $"{list.Count} curated item(s) ready to ship"
+                : "No products available in this category yet.";
+            ViewBag.Title = ViewBag.ProductHeading;
+
+            return View(list);
+        }
+
+        public async Task<IActionResult> AllProducts()
+        {
+            var response = await _productService.GetAllAsync();
+            var list = (response.Data ?? Enumerable.Empty<ProductListDto>()).ToList();
+
+            ViewBag.CategoryId = null;
+            ViewBag.ProductHeading = "All Products";
+            ViewBag.ProductSubtitle = list.Any()
+                ? $"{list.Count} curated item(s) across categories"
+                : "No products available yet.";
+            ViewBag.Title = "All Products";
+
+            return View("Products", list);
         }
 
         public async Task<IActionResult> ProductDetails(int id)

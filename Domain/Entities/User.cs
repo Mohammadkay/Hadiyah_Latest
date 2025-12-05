@@ -2,7 +2,7 @@
 using HadiyahDomain.Entities;
 using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities
+namespace HadiyahDomain.Entities
 {
     public class User
     {

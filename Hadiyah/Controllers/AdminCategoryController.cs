@@ -28,6 +28,7 @@ namespace Hadiyah.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryCreateDto dto, IFormFile imageFile)
         {
             if (!ModelState.IsValid)
@@ -62,7 +63,6 @@ namespace Hadiyah.Controllers
             {
                 Id = result.Data.Id,
                 Name = result.Data.Name,
-                Description = result.Data.Description,
                 ImageBase64 = result.Data.ImageBase64,
                 IsActive = result.Data.IsActive
             };
@@ -72,6 +72,7 @@ namespace Hadiyah.Controllers
 
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryUpdateDto dto, IFormFile imageFile)
         {
             if (!ModelState.IsValid)
@@ -106,6 +107,7 @@ namespace Hadiyah.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _categoryService.DeleteAsync(id);

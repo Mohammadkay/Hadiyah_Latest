@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahRepositories.Interfaces;
 using HadiyahServices.DTOs.Common;
 using HadiyahServices.DTOs.User;

@@ -13,7 +13,7 @@ namespace Hadiyah.Attributes
 
             if (!user.Identity!.IsAuthenticated)
             {
-                context.Result = new RedirectToActionResult("Login", "User", null);
+                context.Result = new RedirectToActionResult("AccessDenied", "User", new { message = "Please login to continue." });
                 return;
             }
 
@@ -21,13 +21,13 @@ namespace Hadiyah.Attributes
 
             if (!int.TryParse(roleClaim, out int roleId))
             {
-                context.Result = new RedirectToActionResult("AccessDenied", "User", null);
+                context.Result = new RedirectToActionResult("AccessDenied", "User", new { message = "Unable to determine your role." });
                 return;
             }
 
             if (roleId != (int)UserRole.Admin)
             {
-                context.Result = new RedirectToActionResult("AccessDenied", "User", null);
+                context.Result = new RedirectToActionResult("AccessDenied", "User", new { message = "Admin privileges are required." });
             }
         }
     }

@@ -1,0 +1,212 @@
+@model HadiyahServices.DTOs.Orders.CheckoutDto
+@using HadiyahServices.DTOs.Cart
+@{
+    ViewBag.Title = "Checkout";
+    var cartItems = ViewBag.CartItems as List<CartItem> ?? new List<CartItem>();
+    var grandTotal = ViewBag.GrandTotal as decimal? ?? cartItems.Sum(x => x.Total);
+}
+
+<div class="py-5 checkout-page">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <span class="badge rounded-pill text-bg-light text-uppercase small text-muted">Secure checkout</span>
+            <h2 class="fw-bold mt-2 mb-1" style="color:#0F2237;">Complete your order</h2>
+            <p class="text-muted mb-0">
+                Provide the delivery details and let us take it from here. You can mark this order as a gift with one click.
+            </p>
+        </div>
+        <div class="text-end small text-muted">
+            Need help? <a href="mailto:support@hadiyah.com">Contact support</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Checkout form -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <p class="text-uppercase text-muted small mb-1">Step 2 of 2</p>
+                            <h4 class="fw-bold mb-0">Delivery details</h4>
+                        </div>
+                        <span class="badge text-bg-light text-muted">Cart total: @grandTotal.ToString("0.00") JOD</span>
+                    </div>
+
+                    <form method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Shipping address</label>
+                            <textarea class="form-control rounded-3"
+                                      asp-for="ShippingAddress"
+                                      rows="3"
+                                      placeholder="City, street, building, delivery notes"></textarea>
+                            <span class="text-danger small d-block mt-1" asp-validation-for="ShippingAddress"></span>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 mb-3 small text-muted">
+                            Couriers deliver everyday between 10 AM and 8 PM. Please add landmarks or gate codes in the notes to avoid delays.
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" asp-for="IsGift" id="IsGiftSwitch" />
+                            <label class="form-check-label fw-semibold" for="IsGiftSwitch">
+                                This order is a gift
+                            </label>
+                        </div>
+
+                        <div id="giftSection" class="card border-0 bg-light rounded-4 mb-3" style="display:none;">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle bg-white text-primary fw-bold d-flex align-items-center justify-content-center me-3" style="width:42px; height:42px;">
+                                        G
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Gift recipient</h6>
+                                        <small class="text-muted">We'll send them tracking updates and your personal note.</small>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Recipient name</label>
+                                    <input class="form-control" asp-for="RecipientName" />
+                                    <span class="text-danger small d-block mt-1" asp-validation-for="RecipientName"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Recipient email</label>
+                                    <input class="form-control" asp-for="RecipientEmail" type="email" />
+                                    <span class="text-danger small d-block mt-1" asp-validation-for="RecipientEmail"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Recipient phone</label>
+                                    <input class="form-control" asp-for="RecipientPhone" />
+                                    <span class="text-danger small d-block mt-1" asp-validation-for="RecipientPhone"></span>
+                                </div>
+
+                                <div class="mb-0">
+                                    <label class="form-label">Gift message</label>
+                                    <textarea class="form-control" asp-for="GiftMessage" rows="3"
+                                              placeholder="Add a personal note (optional)"></textarea>
+                                    <span class="text-danger small d-block mt-1" asp-validation-for="GiftMessage"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="form-label fw-semibold d-block">Payment method</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Cash" id="payCash" />
+                                <label class="form-check-label" for="payCash">
+                                    Cash on delivery
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" asp-for="PaymentMethod" value="Card" id="payCard" />
+                                <label class="form-check-label" for="payCard">
+                                    Card (pay online now)
+                                </label>
+                            </div>
+                            <span class="text-danger small d-block mt-1" asp-validation-for="PaymentMethod"></span>
+                        </div>
+
+                        <div class="d-flex align-items-start gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 flex-grow-1">
+                                Place secure order
+                            </button>
+                            <div class="small text-muted">
+                                By placing your order you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order summary -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top:110px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Order summary</h5>
+
+                    <ul class="list-group list-group-flush mb-3 rounded-4 border">
+                        @foreach (var item in cartItems)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width:48px; height:48px;">
+                                        @if (!string.IsNullOrEmpty(item.ImageBase64))
+                                        {
+                                            <img src="data:image/png;base64,@item.ImageBase64" class="rounded-circle" style="width:48px; height:48px; object-fit:cover;" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">No Img</span>
+                                        }
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">@item.Name</div>
+                                        <div class="small text-muted">
+                                            @item.Quantity x @item.Price.ToString("0.00") JOD
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="fw-semibold">@item.Total.ToString("0.00") JOD</div>
+                            </li>
+                        }
+                    </ul>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-top">
+                        <span class="text-muted small">Subtotal</span>
+                        <span>@grandTotal.ToString("0.00") JOD</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pb-2">
+                        <span class="text-muted small">Delivery</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small mb-2">
+                        <span>Payment</span>
+                        <span>@Model?.PaymentMethod ?? "Cash"</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center py-3 border-top border-bottom mb-3">
+                        <span class="fw-semibold">Total due today</span>
+                        <span class="fw-bold" style="color:#0F2237;">@grandTotal.ToString("0.00") JOD</span>
+                    </div>
+
+                    <div class="d-flex align-items-center text-success small mb-2">
+                        <span class="me-2">&check;</span> Transactions are encrypted and secure.
+                    </div>
+                    <div class="d-flex align-items-center text-muted small">
+                        <span class="me-2">i</span> Need more time? Cart items are reserved for 30 minutes.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function toggleGiftSection() {
+            const checkbox = document.getElementById('IsGiftSwitch');
+            const section = document.getElementById('giftSection');
+            if (!checkbox || !section) {
+                return;
+            }
+            section.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleGiftSection();
+            const checkbox = document.getElementById('IsGiftSwitch');
+            if (checkbox) {
+                checkbox.addEventListener('change', toggleGiftSection);
+            }
+        });
+    </script>
+}

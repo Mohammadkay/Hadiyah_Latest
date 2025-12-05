@@ -30,8 +30,15 @@ namespace Hadiyah.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductCreateDto dto, IFormFile imageFile)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = await _categoryService.GetAllAsync();
+                return View(dto);
+            }
+
             if (imageFile != null)
             {
                 using var ms = new MemoryStream();
@@ -76,8 +83,15 @@ namespace Hadiyah.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductUpdateDto dto, IFormFile imageFile)
         {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = await _categoryService.GetAllAsync();
+                return View(dto);
+            }
+
             if (imageFile != null)
             {
                 using var ms = new MemoryStream();

@@ -1,6 +1,7 @@
-﻿@model HadiyahServices.DTOs.User.LoginDto
+@model HadiyahServices.DTOs.User.LoginDto
 @{
     ViewBag.Title = "Login";
+    var returnUrl = ViewBag.ReturnUrl as string ?? ViewContext.HttpContext.Request.Query["returnUrl"].ToString();
 }
 
 <div class="auth-container">
@@ -8,11 +9,14 @@
     <div class="text-center mb-4">
         <img src="/images/hadiyah-logo.png" class="brand-logo mb-2" />
         <h4 class="fw-bold">Welcome Back</h4>
-        <p class="text-muted">Login to continue gifting 🎁</p>
+        <p class="text-muted">Login to continue gifting.</p>
     </div>
 
     <div class="card p-4 shadow-sm">
         <form asp-action="Login" method="post">
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
             <div class="mb-3">
                 <label class="form-label">Email</label>

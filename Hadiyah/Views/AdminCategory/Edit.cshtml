@@ -1,38 +1,70 @@
-﻿@model HadiyahServices.DTOs.Category.CategoryUpdateDto
+@model HadiyahServices.DTOs.Category.CategoryUpdateDto
 
 @{
     ViewBag.Title = "Edit Category";
 }
 
-<h2>Edit Category</h2>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Edit @Model.Name</h2>
+        <p class="text-muted mb-0">Update the display name, imagery, or toggle visibility in the storefront.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">&larr; Back</a>
+</div>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form asp-action="Edit"
+      method="post"
+      enctype="multipart/form-data"
+      class="card border-0 shadow-sm rounded-4 p-4">
 
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
 
-    <div class="mb-3">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-    </div>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
 
-    <div class="mb-3">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
-    </div>
-
-    @if (!string.IsNullOrEmpty(Model.ImageBase64))
-    {
-        <div class="mb-3">
-            <label>Current Image</label><br />
-            <img src="data:image/png;base64,@Model.ImageBase64" width="150" class="rounded shadow" />
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Category name</label>
+            <input asp-for="Name" class="form-control form-control-lg" />
+            <span class="text-danger small d-block mt-1" asp-validation-for="Name"></span>
         </div>
-    }
-
-    <div class="mb-3">
-        <label>Change Image</label>
-        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Visibility</label>
+            <div class="form-check form-switch mt-2">
+                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+                <label class="form-check-label">
+                    @((Model.IsActive ? "Active in shop" : "Hidden from customers"))
+                </label>
+            </div>
+        </div>
     </div>
 
-    <button class="btn btn-primary w-100">Save Changes</button>
+    <div class="row g-4 mt-1">
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Current cover</label>
+            @if (!string.IsNullOrEmpty(Model.ImageBase64))
+            {
+                <img src="data:image/png;base64,@Model.ImageBase64"
+                     alt="@Model.Name cover"
+                     class="img-fluid rounded-4 border"
+                     style="max-height:220px; object-fit:cover;" />
+            }
+            else
+            {
+                <div class="border rounded-4 d-flex align-items-center justify-content-center text-muted"
+                     style="height:220px;">
+                    No image uploaded
+                </div>
+            }
+        </div>
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Upload new image</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            <div class="form-text">Leave blank to keep the current cover.</div>
+        </div>
+    </div>
 
+    <div class="text-end mt-4">
+        <button class="btn btn-primary px-4 rounded-pill">Save changes</button>
+    </div>
 </form>

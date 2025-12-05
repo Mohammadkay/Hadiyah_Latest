@@ -1,47 +1,118 @@
-﻿<!DOCTYPE html>
+@using System.Text.Json
+@{
+    var currentPath = Context.Request.Path.ToString()?.ToLower() ?? string.Empty;
+    Func<string, bool> isActive = (path) => currentPath.Contains(path.ToLower());
+}
+<!DOCTYPE html>
 <html>
 <head>
     <title>@ViewBag.Title - Admin Panel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        .admin-sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0f2237 0%, #07101c 100%);
+        }
+        .admin-sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .admin-sidebar .nav-link.active,
+        .admin-sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        .admin-content {
+            background: #f5f7fb;
+            min-height: 100vh;
+        }
+        .admin-topbar {
+            background: #fff;
+            border-bottom: 1px solid #eaeaea;
+            padding: 1rem 2rem;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body class="admin-content">
 
     <div class="d-flex">
 
         <!-- Sidebar -->
-        <div class="bg-dark text-white p-3" style="width:250px; height:100vh;">
-            <h3 class="text-center mb-4">Admin</h3>
+        <div class="admin-sidebar text-white p-3">
+            <div class="text-center mb-4">
+                <h4 class="fw-bold mb-0">HADIYAH Admin</h4>
+                <small class="text-muted">Management Console</small>
+            </div>
 
-            <ul class="nav flex-column">
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="AdminDashboard" asp-action="Index">Dashboard</a>
-                </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="AdminCategory" asp-action="Index">Categories</a>
-                </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="AdminProduct" asp-action="Index">Products</a>
-                </li>
-
-                <li class="nav-item mb-2">
-                    <a class="nav-link text-white" asp-controller="AdminOrder" asp-action="Index">Orders</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link text-white" asp-controller="User" asp-action="Logout">Logout</a>
-                </li>
-            </ul>
+            <nav class="nav flex-column">
+                <a class="nav-link @(isActive("admindashboard") ? "active" : string.Empty)"
+                   asp-controller="AdminDashboard" asp-action="Index">
+                    Dashboard
+                </a>
+                <a class="nav-link @(isActive("admincategory") ? "active" : string.Empty)"
+                   asp-controller="AdminCategory" asp-action="Index">
+                    Categories
+                </a>
+                <a class="nav-link @(isActive("adminproduct") ? "active" : string.Empty)"
+                   asp-controller="AdminProduct" asp-action="Index">
+                    Products
+                </a>
+                <a class="nav-link @(isActive("adminorder") ? "active" : string.Empty)"
+                   asp-controller="AdminOrder" asp-action="Index">
+                    Orders
+                </a>
+                <a class="nav-link @(isActive("adminusers") ? "active" : string.Empty)"
+                   asp-controller="AdminUsers" asp-action="Index">
+                    User Management
+                </a>
+                <a class="nav-link mt-3" asp-controller="User" asp-action="Logout">
+                    Logout
+                </a>
+            </nav>
         </div>
 
         <!-- Content -->
-        <div class="p-4 flex-grow-1">
-            @RenderBody()
+        <div class="flex-grow-1">
+            <div class="admin-topbar d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">@ViewBag.Title</h5>
+                <span class="text-muted small">@DateTime.UtcNow.ToString("dddd, dd MMM yyyy")</span>
+            </div>
+            <div class="p-4">
+                @RenderBody()
+            </div>
         </div>
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @{
+        var alertMessage = TempData.Peek("Alert.Message") as string;
+        var hasAlert = !string.IsNullOrEmpty(alertMessage);
+        var alertTitle = hasAlert ? (TempData.Peek("Alert.Title") as string ?? "Notice") : null;
+        var alertType = hasAlert ? (TempData.Peek("Alert.Type") as string ?? "info") : null;
+        var messageJson = hasAlert ? JsonSerializer.Serialize(alertMessage) : null;
+        var titleJson = hasAlert ? JsonSerializer.Serialize(alertTitle) : null;
+        if (hasAlert)
+        {
+            TempData.Remove("Alert.Message");
+            TempData.Remove("Alert.Title");
+            TempData.Remove("Alert.Type");
+        }
+    }
+    @if (!string.IsNullOrEmpty(alertMessage))
+    {
+        <script>
+            Swal.fire({
+                icon: '@alertType',
+                title: @Html.Raw(titleJson),
+                text: @Html.Raw(messageJson)
+            });
+        </script>
+    }
 </body>
 </html>

@@ -2,7 +2,7 @@
 using HadiyahDomain.enums;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Domain.Entities
+namespace HadiyahDomain.Entities
 {
     public class Order
     {

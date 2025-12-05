@@ -1,7 +1,8 @@
-﻿using Domain.Entities;
 using HadiyahServices.DTOs.enums;
 using HadiyahServices.DTOs.User;
 using HadiyahServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -42,14 +43,26 @@ namespace Hadiyah.Controllers
 
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login(string? returnUrl = null, string? reason = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+            if (!string.IsNullOrWhiteSpace(reason))
+            {
+                var message = reason == "forbidden"
+                    ? "You don't have permission to access that page. Please login with the correct account."
+                    : "Please login to continue.";
+                TempData["Alert.Type"] = "warning";
+                TempData["Alert.Title"] = "Authentication required";
+                TempData["Alert.Message"] = message;
+            }
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login(LoginDto dto, string? returnUrl = null)
         {
+            ViewBag.ReturnUrl = returnUrl;
+
             if (!ModelState.IsValid)
                 return View(dto);
 
@@ -66,7 +79,8 @@ namespace Hadiyah.Controllers
             {
                 HttpOnly = true,
                 Secure = true,
-                Expires = DateTime.UtcNow.AddHours(1)
+                SameSite = SameSiteMode.Strict,
+                IsEssential = true
             });
 
             // get user role from token claims
@@ -81,14 +95,35 @@ namespace Hadiyah.Controllers
                 return RedirectToAction("Index", "AdminDashboard");
             }
 
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+
             return RedirectToAction("Index", "Shop");
         }
 
+        [Authorize]
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            return View();
+        }
 
-
+        [Authorize]
         public IActionResult Logout()
         {
+            HttpContext.Session?.Clear();
             Response.Cookies.Delete("jwt");
+            return RedirectToAction("Login");
+        }
+
+        [AllowAnonymous]
+        public IActionResult AccessDenied(string? message = null)
+        {
+            TempData["Alert.Type"] = "error";
+            TempData["Alert.Title"] = "Access denied";
+            TempData["Alert.Message"] = message ?? "You are not authorized to view that page.";
             return RedirectToAction("Login");
         }
 

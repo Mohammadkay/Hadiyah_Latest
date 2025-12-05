@@ -1,13 +1,8 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahDomain.enums;
 using HadiyahMigrations;
 using HadiyahRepositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HadiyahRepositories.Implementation
 {
@@ -34,6 +29,24 @@ namespace HadiyahRepositories.Implementation
             return await _context.Orders
                 .Where(o => o.Status == status)
                 .ToListAsync();
+        }
+        public async Task<List<Order>> GetByUserIdAsync(long userId)
+        {
+            return await _dbSet
+                .Include(o => o.Recipient)
+                .Include(o => o.OrderItems)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
+        }
+
+        public async Task<Order?> GetDetailsAsync(long orderId, long userId)
+        {
+            return await _dbSet
+                .Include(o => o.Recipient)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(oi => oi.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId);
         }
     }
 }

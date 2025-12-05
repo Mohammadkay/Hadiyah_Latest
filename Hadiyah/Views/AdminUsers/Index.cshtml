@@ -1,0 +1,60 @@
+@model IEnumerable<HadiyahDomain.Entities.User>
+@using HadiyahServices.DTOs.enums
+@using System.Linq
+
+@{
+    ViewBag.Title = "User Management";
+    var flash = TempData["AdminUserMessage"] as string;
+    var flashType = TempData["AdminUserMessageType"] as string ?? "info";
+    var search = ViewBag.Search as string;
+    var admins = Model.Where(u => u.RoleId == (int)UserRole.Admin).ToList();
+    var customers = Model.Where(u => u.RoleId != (int)UserRole.Admin).ToList();
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">User Management</h2>
+        <p class="text-muted mb-0">Activate, pause, or reset passwords for admins and customers.</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(flash))
+{
+    <div class="alert alert-@flashType alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        @flash
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<form method="get" class="row g-2 align-items-center mb-4">
+    <div class="col-md-6">
+        <input type="search" name="search" value="@search" class="form-control" placeholder="Search by name or email" />
+    </div>
+    <div class="col-md-3 d-grid">
+        <button class="btn btn-primary rounded-pill">Search</button>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(search))
+    {
+        <div class="col-md-3 d-grid">
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">Clear</a>
+        </div>
+    }
+</form>
+
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#admins" type="button">Admins (@admins.Count)</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#customers" type="button">Customers (@customers.Count)</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="admins">
+        @await Html.PartialAsync("_UserTable", admins)
+    </div>
+    <div class="tab-pane fade" id="customers">
+        @await Html.PartialAsync("_UserTable", customers)
+    </div>
+</div>

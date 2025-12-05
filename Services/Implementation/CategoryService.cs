@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahRepositories.Interfaces;
 using HadiyahServices.DTOs.Category;
 using HadiyahServices.DTOs.Common;
@@ -23,7 +23,6 @@ namespace HadiyahServices.Implementation
             var entity = new Category
             {
                 Name = dto.Name,
-                Description = dto.Description,
                 ImageBase64 = dto.ImageBase64
             };
 
@@ -33,7 +32,6 @@ namespace HadiyahServices.Implementation
             {
                 Id = entity.Id,
                 Name = entity.Name,
-                Description = entity.Description,
                 ImageBase64 = entity.ImageBase64,
                 IsActive = entity.IsActive
             });
@@ -46,7 +44,6 @@ namespace HadiyahServices.Implementation
                 return BaseResponse<CategoryListDto>.Fail("Category not found");
 
             category.Name = dto.Name;
-            category.Description = dto.Description;
             category.ImageBase64 = dto.ImageBase64;
             category.IsActive = dto.IsActive;
 
@@ -56,7 +53,6 @@ namespace HadiyahServices.Implementation
             {
                 Id = category.Id,
                 Name = category.Name,
-                Description = category.Description,
                 ImageBase64 = category.ImageBase64,
                 IsActive = category.IsActive
             });
@@ -80,7 +76,6 @@ namespace HadiyahServices.Implementation
             {
                 Id = c.Id,
                 Name = c.Name,
-                Description = c.Description,
                 ImageBase64 = c.ImageBase64,
                 IsActive = c.IsActive
             });
@@ -99,7 +94,6 @@ namespace HadiyahServices.Implementation
             {
                 Id = category.Id,
                 Name = category.Name,
-                Description = category.Description,
                 ImageBase64 = category.ImageBase64,
                 IsActive = category.IsActive
             });

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HadiyahServices.DTOs.Category
 {
@@ -14,9 +9,6 @@ namespace HadiyahServices.DTOs.Category
         [Required]
         [StringLength(100)]
         public string Name { get; set; }
-
-        [StringLength(500)]
-        public string? Description { get; set; }
 
         public string? ImageBase64 { get; set; }
         public bool IsActive { get; set; }

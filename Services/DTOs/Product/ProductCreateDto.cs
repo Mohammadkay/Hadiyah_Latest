@@ -17,11 +17,13 @@ namespace HadiyahServices.DTOs.Product
         public string? Description { get; set; }
 
         [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0.")]
         public decimal Price { get; set; }
 
         public string? ImageBase64 { get; set; }
 
         [Required]
+        [Range(0, int.MaxValue, ErrorMessage = "Stock quantity cannot be negative.")]
         public int StockQuantity { get; set; }
 
         [Required]

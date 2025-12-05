@@ -6,6 +6,7 @@ using HadiyahServices.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
             )
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                context.HandleResponse();
+                var returnUrl = context.Request.Path + context.Request.QueryString;
+                var encoded = Uri.EscapeDataString(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+                context.Response.Redirect($"/User/Login?returnUrl={encoded}&reason=unauthorized");
+                return Task.CompletedTask;
+            },
+            OnForbidden = context =>
+            {
+                var returnUrl = context.Request.Path + context.Request.QueryString;
+                var encoded = Uri.EscapeDataString(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+                context.Response.Redirect($"/User/Login?returnUrl={encoded}&reason=forbidden");
+                return Task.CompletedTask;
+            }
+        };
     });
 
 
@@ -51,9 +71,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 var app = builder.Build();
 
+app.UseExceptionHandler("/Home/Error");
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
@@ -78,7 +98,7 @@ app.UseAuthorization();
 // Default route: User/Login
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=User}/{action=Login}/{id?}"
+    pattern: "{controller=Shop}/{action=Index}/{id?}"
 );
 
 app.Run();

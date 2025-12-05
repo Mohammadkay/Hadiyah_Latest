@@ -1,29 +1,45 @@
-﻿@model HadiyahServices.DTOs.Category.CategoryCreateDto
+@model HadiyahServices.DTOs.Category.CategoryCreateDto
 
 @{
     ViewBag.Title = "Create Category";
 }
 
-<h2 class="mb-3">Add New Category</h2>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Add Category</h2>
+        <p class="text-muted mb-0">Give this collection a memorable name and pair it with a bold cover image.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">&larr; Back to list</a>
+</div>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form asp-action="Create"
+      method="post"
+      enctype="multipart/form-data"
+      class="card border-0 shadow-sm rounded-4 p-4">
 
-    <div class="mb-3">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-        <span class="text-danger" asp-validation-for="Name"></span>
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Category name</label>
+            <input asp-for="Name" class="form-control form-control-lg" placeholder="e.g. Flowers" />
+            <span class="text-danger small d-block mt-1" asp-validation-for="Name"></span>
+        </div>
+
+        <div class="col-lg-6">
+            <label class="form-label fw-semibold">Cover image</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+            <div class="form-text">Choose a square image (min 600x600) for the shop grid.</div>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
+    <div class="bg-light rounded-4 p-3 mt-4 small text-muted">
+        <strong>Tip:</strong> Keep category names short (1-2 words). You can update imagery anytime from the edit screen.
     </div>
 
-    <div class="mb-3">
-        <label>Upload Image</label>
-        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+    <div class="text-end mt-4">
+        <button class="btn btn-primary px-4 rounded-pill">Create category</button>
     </div>
-
-    <button class="btn btn-primary w-100">Create</button>
-
 </form>

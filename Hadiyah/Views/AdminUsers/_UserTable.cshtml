@@ -1,0 +1,59 @@
+@model IEnumerable<HadiyahDomain.Entities.User>
+
+@{
+    var users = Model?.ToList() ?? new List<HadiyahDomain.Entities.User>();
+}
+
+@if (!users.Any())
+{
+    <div class="bg-white rounded-4 shadow-sm p-4 text-center text-muted">
+        No users found for this tab.
+    </div>
+}
+else
+{
+    <div class="table-responsive shadow-sm rounded-4 overflow-hidden mb-4">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in users)
+                {
+                    <tr>
+                        <td class="fw-semibold">@user.FirstName @user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>@user.Role?.Name</td>
+                        <td>
+                            <span class="badge @(user.IsActive ? "text-bg-success" : "text-bg-secondary") rounded-pill px-3">
+                                @(user.IsActive ? "Active" : "Paused")
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <form asp-action="ToggleStatus" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button class="btn btn-sm @(user.IsActive ? "btn-outline-danger" : "btn-outline-success") rounded-pill">
+                                        @(user.IsActive ? "Pause" : "Activate")
+                                    </button>
+                                </form>
+                                <a asp-action="ChangePassword"
+                                   asp-route-id="@user.Id"
+                                   class="btn btn-sm btn-outline-secondary rounded-pill">
+                                    Reset Password
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

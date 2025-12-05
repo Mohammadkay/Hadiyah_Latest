@@ -1,13 +1,8 @@
-﻿using Domain.Entities;
+﻿using HadiyahDomain.Entities;
 using HadiyahRepositories.Interfaces;
 using HadiyahServices.DTOs.Common;
 using HadiyahServices.DTOs.Product;
 using HadiyahServices.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HadiyahServices.Implementation
 {

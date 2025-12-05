@@ -1,0 +1,145 @@
+@model HadiyahDomain.Entities.Order
+
+@{
+    ViewBag.Title = "Order #" + Model.Id;
+    var recipient = Model.Recipient;
+    var expected = Model.OrderDate.AddDays(3);
+    var isPastDue = DateTime.UtcNow >= expected;
+    var statusLabel = (isPastDue && Model.Status != HadiyahDomain.enums.OrderStatus.Cancelled && Model.Status != HadiyahDomain.enums.OrderStatus.Completed)
+        ? "Received"
+        : Model.Status.ToString();
+    var steps = new[] { "Pending", "Paid", "Shipped", "Completed" };
+    string ResolveStepClass(string step)
+    {
+        if (statusLabel == "Received" && step == "Completed")
+            return "completed";
+        if (Enum.TryParse<HadiyahDomain.enums.OrderStatus>(step, out var parsed))
+        {
+            if (Model.Status == parsed)
+                return "completed";
+            if ((int)Model.Status > (int)parsed)
+                return "completed";
+        }
+        return string.Empty;
+    }
+}
+
+<style>
+    .completed {
+        background-color: #0F2237;
+        color: #fff;
+        border-color: #0F2237 !important;
+    }
+</style>
+
+<div class="py-5">
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3 mb-3">
+        &larr; Back to orders
+    </a>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-3">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-2">Order #@Model.Id</h4>
+                    <p class="text-muted mb-1">
+                        Placed on @Model.OrderDate.ToString("yyyy-MM-dd HH:mm")
+                    </p>
+                    <p class="text-muted mb-1">
+                        Status: <strong>@statusLabel</strong>
+                    </p>
+                    <p class="text-muted mb-3">
+                        Expected delivery: @expected.ToString("yyyy-MM-dd")
+                        @if (isPastDue)
+                        {
+                            <span class="badge text-bg-success rounded-pill ms-1">Delivered</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted small ms-1">
+                                Arrives in @((expected - DateTime.UtcNow).Days + 1) day(s)
+                            </span>
+                        }
+                    </p>
+                    <p class="text-muted mb-0">
+                        Type: @(Model.IsGift ? "Gift order" : "Personal order")
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        @foreach (var step in steps)
+                        {
+                            <div class="text-center flex-fill">
+                                <div class="rounded-circle mx-auto mb-2 @(ResolveStepClass(step))" style="width:36px; height:36px; border:2px solid #e0e0e0; line-height:32px;">
+                                    <span>@step.Substring(0,1)</span>
+                                </div>
+                                <small class="text-muted">@step</small>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Items</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">@item.Product?.Name</div>
+                                    <div class="small text-muted">
+                                        @item.Quantity x @item.UnitPrice.ToString("0.00") JOD
+                                    </div>
+                                </div>
+                                <div class="fw-semibold">@item.TotalPrice.ToString("0.00") JOD</div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Summary</h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total amount</span>
+                        <span class="fw-bold">@Model.TotalAmount.ToString("0.00") JOD</span>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="fw-bold mb-2">Recipient</h6>
+                    @if (recipient != null)
+                    {
+                        <p class="mb-1"><strong>@recipient.Name</strong></p>
+                        @if (!string.IsNullOrEmpty(recipient.Email))
+                        {
+                            <p class="mb-1 text-muted small">@recipient.Email</p>
+                        }
+                        @if (!string.IsNullOrEmpty(recipient.Phone))
+                        {
+                            <p class="mb-1 text-muted small">@recipient.Phone</p>
+                        }
+                        @if (!string.IsNullOrEmpty(recipient.ShippingAddress))
+                        {
+                            <p class="mb-1 text-muted small">@recipient.ShippingAddress</p>
+                        }
+                        @if (!string.IsNullOrEmpty(recipient.Message))
+                        {
+                            <p class="mt-2 small"><em>"@recipient.Message"</em></p>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0 small">
+                            Recipient details not available for this order.
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

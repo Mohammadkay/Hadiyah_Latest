@@ -4,13 +4,12 @@
 
 <a asp-action="Create" class="btn btn-primary mb-3">+ Add Category</a>
 
-<table class="table table-bordered table-striped">
+<table class="table table-hover align-middle shadow-sm rounded-4 overflow-hidden">
     <thead>
         <tr>
             <th>Image</th>
             <th>Name</th>
-            <th>Description</th>
-            <th>Active</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -25,12 +24,22 @@
                         <img src="data:image/png;base64,@c.ImageBase64" width="60" class="rounded shadow" />
                     }
                 </td>
-                <td>@c.Name</td>
-                <td>@c.Description</td>
-                <td>@(c.IsActive ? "Yes" : "No")</td>
+                <td class="fw-semibold">@c.Name</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-warning btn-sm">Edit</a>
-                    <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-danger btn-sm">Delete</a>
+                    @if (c.IsActive)
+                    {
+                        <span class="badge text-bg-success rounded-pill px-3">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge text-bg-secondary rounded-pill px-3">Hidden</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <a asp-action="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a asp-action="Delete" asp-route-id="@c.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
                 </td>
             </tr>
         }

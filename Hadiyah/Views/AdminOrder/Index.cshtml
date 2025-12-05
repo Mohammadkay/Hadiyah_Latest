@@ -1,0 +1,93 @@
+@model IEnumerable<Hadiyah.Models.AdminOrderListItemViewModel>
+@using HadiyahDomain.enums
+@using System.Linq
+
+@{
+    ViewBag.Title = "Orders";
+    var flash = TempData["AdminOrderMessage"] as string;
+    var statusOptions = Enum.GetValues(typeof(OrderStatus)).Cast<OrderStatus>();
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Orders</h2>
+        <p class="text-muted mb-0">Track fulfillment progress and update statuses. Expected delivery is calculated as +3 days.</p>
+    </div>
+    <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-outline-secondary rounded-pill">&larr; Dashboard</a>
+</div>
+
+@if (!string.IsNullOrEmpty(flash))
+{
+    <div class="alert alert-info alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4" role="alert">
+        @flash
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="table-responsive shadow-sm rounded-4 overflow-hidden">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Type</th>
+                <th>Placed</th>
+                <th>Expected</th>
+                <th>Status</th>
+                <th class="text-end">Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                var expectedLabel = order.ExpectedDeliveryDate.ToString("yyyy-MM-dd");
+                var countdown = order.ExpectedDeliveryDate > DateTime.UtcNow
+                    ? $"Arrives in {(order.ExpectedDeliveryDate - DateTime.UtcNow).Days + 1} day(s)"
+                    : "Should be delivered";
+                <tr class="@(order.IsOverdue ? "table-warning" : string.Empty)">
+                    <td class="fw-semibold">#@order.Id</td>
+                    <td>
+                        <div class="fw-semibold">@order.CustomerName</div>
+                        <div class="small text-muted">@order.CustomerEmail</div>
+                    </td>
+                    <td>@order.TotalAmount.ToString("0.00") JOD</td>
+                    <td>@(order.IsGift ? "Gift" : "Personal")</td>
+                    <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <div>@expectedLabel</div>
+                        <div class="small text-muted">@countdown</div>
+                    </td>
+                    <td>
+                        <span class="badge text-bg-@(order.Status switch
+                        {
+                            OrderStatus.Pending => "warning",
+                            OrderStatus.Paid => "info",
+                            OrderStatus.Shipped => "primary",
+                            OrderStatus.Completed => "success",
+                            OrderStatus.Cancelled => "secondary",
+                            _ => "light"
+                        }) rounded-pill px-3">@order.Status</span>
+                        @if (order.IsOverdue && order.Status != OrderStatus.Completed && order.Status != OrderStatus.Cancelled)
+                        {
+                            <div class="small text-danger">Overdue</div>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <form asp-action="UpdateStatus" method="post" class="d-flex gap-2 justify-content-end">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@order.Id" />
+                            <select name="status" class="form-select form-select-sm w-auto">
+                                @foreach (var status in statusOptions)
+                                {
+                                    <option value="@status" selected="@(status == order.Status)">@status</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill">Save</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

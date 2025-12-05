@@ -1,53 +1,83 @@
-﻿@model HadiyahServices.DTOs.Product.ProductCreateDto
+@using System.Linq
+@model HadiyahServices.DTOs.Product.ProductCreateDto
 
 @{
     ViewBag.Title = "Create Product";
-    var categories = ViewBag.Categories.Data;
+    var categories = ViewBag.Categories?.Data as IEnumerable<HadiyahServices.DTOs.Category.CategoryListDto>
+                     ?? Enumerable.Empty<HadiyahServices.DTOs.Category.CategoryListDto>();
 }
 
-<h2>Add Product</h2>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Add product</h2>
+        <p class="text-muted mb-0">Share a short description, price, inventory, and drop it into a category.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">&larr; Back</a>
+</div>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm">
+<form asp-action="Create"
+      method="post"
+      enctype="multipart/form-data"
+      class="card border-0 shadow-sm rounded-4 p-4">
 
-    <div class="mb-3">
-        <label>Name</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Product name</label>
+                <input asp-for="Name" class="form-control form-control-lg" placeholder="e.g. Midnight Roses Bundle" />
+                <span class="text-danger small d-block mt-1" asp-validation-for="Name"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="5" placeholder="What makes this product special?"></textarea>
+                <span class="text-danger small d-block mt-1" asp-validation-for="Description"></span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Price (JOD)</label>
+                    <input asp-for="Price" class="form-control" />
+                    <span class="text-danger small d-block mt-1" asp-validation-for="Price"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Stock quantity</label>
+                    <input asp-for="StockQuantity" class="form-control" />
+                    <span class="text-danger small d-block mt-1" asp-validation-for="StockQuantity"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Category</label>
+                <select asp-for="CategoryId" class="form-select">
+                    <option value="">Choose category</option>
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id">@c.Name</option>
+                    }
+                </select>
+                <span class="text-danger small d-block mt-1" asp-validation-for="CategoryId"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Product image</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                <div class="form-text">Recommended 4:5 ratio. JPG or PNG works best.</div>
+            </div>
+
+            <div class="bg-light rounded-4 p-3 small">
+                <strong>Need ideas?</strong> Upload lifestyle shots to boost conversion. You can change assets anytime.
+            </div>
+        </div>
     </div>
 
-    <div class="mb-3">
-        <label>Description</label>
-        <textarea asp-for="Description" class="form-control"></textarea>
+    <div class="text-end mt-4">
+        <button class="btn btn-primary px-4 rounded-pill">Create product</button>
     </div>
-
-    <div class="mb-3">
-        <label>Price</label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>Stock Quantity</label>
-        <input asp-for="StockQuantity" class="form-control" />
-        <span asp-validation-for="StockQuantity" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label>Category</label>
-        <select asp-for="CategoryId" class="form-control">
-            <option value="">Choose...</option>
-            @foreach (var c in categories)
-            {
-                <option value="@c.Id">@c.Name</option>
-            }
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label>Image File</label>
-        <input type="file" name="imageFile" class="form-control" />
-    </div>
-
-    <button class="btn btn-primary w-100">Create</button>
-
 </form>

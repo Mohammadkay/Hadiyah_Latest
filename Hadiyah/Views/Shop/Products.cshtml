@@ -1,25 +1,26 @@
-﻿@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
+@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
 
 @{
-    ViewBag.Title = "Products";
+    ViewBag.Title ??= "Products";
     var hasItems = Model != null && Model.Any();
+    var heading = ViewBag.ProductHeading as string ?? "Available Gifts";
+    var supportingText = ViewBag.ProductSubtitle as string
+        ?? (hasItems ? $"{Model.Count()} item(s) found" : "No products in this category yet.");
 }
 
 <div class="py-5">
 
     <!-- Header / breadcrumb feel -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-            <h2 class="fw-bold mb-1" style="color:#0F2237;">Available Gifts</h2>
-            <p class="text-muted mb-0">
-                @(hasItems ? $"{Model.Count()} items found" : "No products in this category yet.")
-            </p>
+            <h2 class="fw-bold mb-1" style="color:#0F2237;">@heading</h2>
+            <p class="text-muted mb-0">@supportingText</p>
         </div>
 
-        <div class="mb-3">
+        <div>
             <a asp-action="Index"
                class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
-                <span class="me-1">←</span> Back to categories
+                <span class="me-1">&larr;</span> Back to categories
             </a>
         </div>
 
@@ -28,7 +29,7 @@
     @if (!hasItems)
     {
         <div class="text-center text-muted py-5">
-            No products found in this category yet.
+            No products found in this selection yet. Check back soon.
         </div>
     }
     else
@@ -60,7 +61,7 @@
                             }
 
                             <div class="fw-bold mb-3" style="color:#0F2237;">
-                                @p.Price.ToString("0.00") SAR
+                                @p.Price.ToString("0.00") JOD
                             </div>
 
                             <a asp-controller="Shop"
