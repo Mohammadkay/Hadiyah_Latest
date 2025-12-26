@@ -72,9 +72,12 @@
 
             <div class="mb-3">
                 <label class="form-label fw-semibold">Current image</label>
-                @if (!string.IsNullOrEmpty(Model.ImageBase64))
+                @{
+                    var imgSrc = !string.IsNullOrEmpty(Model.ImagePath) ? Model.ImagePath : null;
+                }
+                @if (!string.IsNullOrEmpty(imgSrc))
                 {
-                    <img src="data:image/png;base64,@Model.ImageBase64"
+                    <img src="@imgSrc"
                          class="img-fluid rounded-4 border mb-2"
                          style="max-height:220px; object-fit:cover;" />
                 }

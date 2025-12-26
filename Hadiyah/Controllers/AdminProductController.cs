@@ -73,7 +73,7 @@ namespace Hadiyah.Controllers
                 Name = product.Data.Name,
                 Description = product.Data.Description,
                 Price = product.Data.Price,
-                ImageBase64 = product.Data.ImageBase64,
+                ImagePath = product.Data.ImagePath,
                 StockQuantity = product.Data.StockQuantity,
                 CategoryId = product.Data.CategoryId,
                 IsActive = product.Data.IsActive

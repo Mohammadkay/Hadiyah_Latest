@@ -19,9 +19,9 @@
         {
             <tr>
                 <td>
-                    @if (!string.IsNullOrEmpty(c.ImageBase64))
+                    @if (!string.IsNullOrEmpty(c.ImagePath))
                     {
-                        <img src="data:image/png;base64,@c.ImageBase64" width="60" class="rounded shadow" />
+                        <img src="@c.ImagePath" width="60" class="rounded shadow" />
                     }
                 </td>
                 <td class="fw-semibold">@c.Name</td>

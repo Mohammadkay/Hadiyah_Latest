@@ -16,6 +16,9 @@
         <h2 class="fw-bold mb-1">User Management</h2>
         <p class="text-muted mb-0">Activate, pause, or reset passwords for admins and customers.</p>
     </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Create" class="btn btn-primary rounded-pill">Add Admin</a>
+    </div>
 </div>
 
 @if (!string.IsNullOrEmpty(flash))

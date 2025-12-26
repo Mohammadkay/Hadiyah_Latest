@@ -19,30 +19,30 @@ namespace Hadiyah.Controllers
             _productService = productService;
         }
 
-        public async Task<IActionResult> Index(long? categoryId, decimal? minPrice, decimal? maxPrice)
+        public async Task<IActionResult> Index(long? categoryId, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
         {
             var categoriesResponse = await _categoryService.GetAllAsync();
-            var productsResponse = await _productService.GetAllAsync();
+            var productsResponse = await _productService.GetFilteredPagedAsync(categoryId, minPrice, maxPrice, page, pageSize);
 
             var categories = categoriesResponse.Data ?? Enumerable.Empty<CategoryListDto>();
-            var products = productsResponse.Data ?? Enumerable.Empty<ProductListDto>();
-
-            if (categoryId.HasValue)
-                products = products.Where(p => p.CategoryId == categoryId.Value);
-
-            if (minPrice.HasValue)
-                products = products.Where(p => p.Price >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                products = products.Where(p => p.Price <= maxPrice.Value);
+            var products = productsResponse.Data ?? new ProductPagedResultDto
+            {
+                Items = Enumerable.Empty<ProductListDto>(),
+                Page = page,
+                PageSize = pageSize
+            };
 
             ViewBag.Categories = categories;
             ViewBag.SelectedCategory = categoryId;
             ViewBag.MinPrice = minPrice;
             ViewBag.MaxPrice = maxPrice;
+            ViewBag.PageSize = products.PageSize;
+            ViewBag.Page = products.Page;
+            ViewBag.TotalPages = products.TotalPages;
+            ViewBag.TotalCount = products.TotalCount;
             ViewBag.Title = "Shop";
 
-            return View(products.ToList());
+            return View(products);
         }
 
         public async Task<IActionResult> Products(int categoryId)

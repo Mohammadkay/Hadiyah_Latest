@@ -75,7 +75,7 @@ namespace Hadiyah.Controllers
                     Price = product.Price,
                     Quantity = quantityToAdd,
                     StockQuantity = product.StockQuantity,
-                    ImageBase64 = product.ImageBase64
+                    ImagePath = product.ImagePath
                 });
             }
 

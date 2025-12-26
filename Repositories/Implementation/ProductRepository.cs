@@ -16,9 +16,21 @@ namespace HadiyahRepositories.Implementation
 
         public async Task<IEnumerable<Product>> GetByCategoryAsync(long categoryId)
         {
-            return await _context.Products
-                .Where(p => p.CategoryId == categoryId)
-                .ToListAsync();
+            return await GetFilteredAsync(categoryId, null, null);
+        }
+
+        public async Task<List<Product>> GetFilteredAsync(long? categoryId, decimal? minPrice, decimal? maxPrice, int? skip = null, int? take = null)
+        {
+            return await GetAsync(
+                predicate: p =>
+                    (!categoryId.HasValue || p.CategoryId == categoryId.Value) &&
+                    (!minPrice.HasValue || p.Price >= minPrice.Value) &&
+                    (!maxPrice.HasValue || p.Price <= maxPrice.Value),
+                orderBy: q => q.OrderByDescending(p => p.CreatedAt),
+                include: q => q.Include(p => p.Category),
+                disableTracking: true,
+                skip: skip,
+                take: take);
         }
 
         public async Task<bool> ExistsByNameAsync(string name)

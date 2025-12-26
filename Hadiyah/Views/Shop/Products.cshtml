@@ -37,11 +37,12 @@
         <div class="row g-4">
             @foreach (var p in Model)
             {
+                var imgSrc = !string.IsNullOrEmpty(p.ImagePath) ? p.ImagePath : null;
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
-                        @if (!string.IsNullOrEmpty(p.ImageBase64))
+                        @if (!string.IsNullOrEmpty(imgSrc))
                         {
-                            <img src="data:image/png;base64,@p.ImageBase64"
+                            <img src="@imgSrc"
                                  class="card-img-top"
                                  style="height:190px; object-fit:cover;" />
                         }

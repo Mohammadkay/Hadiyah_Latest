@@ -3,6 +3,7 @@ using HadiyahDomain.enums;
 using HadiyahRepositories.Interfaces;
 using HadiyahServices.DTOs.Dashboard;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hadiyah.Controllers
 {
@@ -29,14 +30,17 @@ namespace Hadiyah.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var pendingOrders = await _orderRepo.CountAsync(o => o.Status == OrderStatus.Pending);
+            var revenue = await _orderRepo.Query().SumAsync(o => o.TotalAmount);
+
             var model = new AdminDashboardViewModel
             {
                 TotalUsers = await _userRepo.CountAsync(),
                 TotalCategories = await _categoryRepo.CountAsync(),
                 TotalProducts = await _productRepo.CountAsync(),
                 TotalOrders = await _orderRepo.CountAsync(),
-                PendingOrders = (await _orderRepo.FindAsync(o => o.Status == OrderStatus.Pending)).Count(),
-                Revenue = (await _orderRepo.GetAllAsync()).Sum(o => o.TotalAmount)
+                PendingOrders = pendingOrders,
+                Revenue = revenue
             };
 
             return View(model);

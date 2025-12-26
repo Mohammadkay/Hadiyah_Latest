@@ -1,4 +1,4 @@
-@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
+@model HadiyahServices.DTOs.Product.ProductPagedResultDto
 
 @{
     ViewBag.Title = "Shop";
@@ -6,7 +6,15 @@
     var selectedCategory = ViewBag.SelectedCategory as long?;
     var minPrice = ViewBag.MinPrice as decimal?;
     var maxPrice = ViewBag.MaxPrice as decimal?;
-    var hasItems = Model != null && Model.Any();
+    var items = Model?.Items ?? Enumerable.Empty<HadiyahServices.DTOs.Product.ProductListDto>();
+    var hasItems = items.Any();
+    var currentPage = Model?.Page ?? 1;
+    var pageSize = Model?.PageSize ?? 12;
+    var totalPages = Model?.TotalPages ?? 0;
+    var totalCount = Model?.TotalCount ?? 0;
+    int startPage = Math.Max(1, currentPage - 2);
+    int endPage = Math.Min(totalPages, currentPage + 2);
+    string PageUrl(int targetPage) => Url.Action("Index", new { categoryId = selectedCategory, minPrice, maxPrice, page = targetPage, pageSize }) ?? "#";
 }
 
 <div class="py-5">
@@ -15,7 +23,7 @@
         <div>
             <h1 class="fw-bold" style="color:#0F2237;">Explore Products</h1>
             <p class="text-muted mb-0">
-                @(hasItems ? $"{Model.Count()} item(s) match your filters." : "No products match your filters yet.")
+                @(hasItems ? $"{totalCount} item(s) match your filters." : "No products match your filters yet.")
             </p>
         </div>
     </div>
@@ -61,13 +69,14 @@
     else
     {
         <div class="row g-4">
-            @foreach (var p in Model)
+            @foreach (var p in items)
             {
+                var imgSrc = !string.IsNullOrEmpty(p.ImagePath) ? p.ImagePath : null;
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
-                        @if (!string.IsNullOrEmpty(p.ImageBase64))
+                        @if (!string.IsNullOrEmpty(imgSrc))
                         {
-                            <img src="data:image/png;base64,@p.ImageBase64"
+                            <img src="@imgSrc"
                                  class="card-img-top"
                                  style="height:190px; object-fit:cover;" />
                         }
@@ -102,5 +111,25 @@
                 </div>
             }
         </div>
+
+        @if (totalPages > 1)
+        {
+            <nav class="d-flex justify-content-center mt-4">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@(currentPage == 1 ? "#" : PageUrl(currentPage - 1))" tabindex="-1">Previous</a>
+                    </li>
+                    @for (var i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@PageUrl(i)">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@(currentPage == totalPages ? "#" : PageUrl(currentPage + 1))">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
     }
 </div>

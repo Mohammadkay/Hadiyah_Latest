@@ -10,9 +10,9 @@
 
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body d-flex align-items-center gap-4">
-            @if (!string.IsNullOrEmpty(Model.ImageBase64))
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
             {
-                <img src="data:image/png;base64,@Model.ImageBase64" width="120" class="rounded-4 border" />
+                <img src="@Model.ImagePath" width="120" class="rounded-4 border" />
             }
             else
             {

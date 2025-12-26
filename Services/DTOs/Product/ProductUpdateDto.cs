@@ -29,6 +29,7 @@ namespace HadiyahServices.DTOs.Product
         public int StockQuantity { get; set; }
 
         public bool IsActive { get; set; }
+        public string? ImagePath { get; set; }
 
         public long CategoryId { get; set; }
     }

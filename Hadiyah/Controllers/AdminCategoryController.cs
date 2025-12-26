@@ -63,7 +63,7 @@ namespace Hadiyah.Controllers
             {
                 Id = result.Data.Id,
                 Name = result.Data.Name,
-                ImageBase64 = result.Data.ImageBase64,
+                ImagePath = result.Data.ImagePath,
                 IsActive = result.Data.IsActive
             };
 

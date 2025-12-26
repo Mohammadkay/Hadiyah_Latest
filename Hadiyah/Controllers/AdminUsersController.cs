@@ -2,6 +2,7 @@ using Hadiyah.Attributes;
 using Hadiyah.Models;
 using HadiyahDomain.Entities;
 using HadiyahRepositories.Interfaces;
+using HadiyahServices.DTOs.enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -36,6 +37,45 @@ namespace Hadiyah.Controllers
 
             ViewBag.Search = keyword;
             return View(users);
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new AdminCreateUserViewModel());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(AdminCreateUserViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var existing = await _userRepository.GetByEmailAsync(model.Email);
+            if (existing != null)
+            {
+                ModelState.AddModelError(nameof(model.Email), "Email already exists.");
+                return View(model);
+            }
+
+            var admin = new User
+            {
+                FirstName = model.FirstName.Trim(),
+                LastName = model.LastName.Trim(),
+                Email = model.Email.Trim().ToLowerInvariant(),
+                PhoneNumber = model.PhoneNumber,
+                RoleId = (int)UserRole.Admin,
+                IsActive = true
+            };
+
+            admin.PasswordHash = _passwordHasher.HashPassword(admin, model.Password);
+            await _userRepository.AddAsync(admin);
+
+            TempData["AdminUserMessage"] = $"Admin {admin.FirstName} {admin.LastName} created.";
+            TempData["AdminUserMessageType"] = "success";
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

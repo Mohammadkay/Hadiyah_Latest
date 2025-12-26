@@ -137,10 +137,13 @@
                         {
                             <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center">
+                                    @{
+                                        var imgSrc = !string.IsNullOrEmpty(item.ImagePath) ? item.ImagePath : null;
+                                    }
                                     <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center" style="width:48px; height:48px;">
-                                        @if (!string.IsNullOrEmpty(item.ImageBase64))
+                                        @if (!string.IsNullOrEmpty(imgSrc))
                                         {
-                                            <img src="data:image/png;base64,@item.ImageBase64" class="rounded-circle" style="width:48px; height:48px; object-fit:cover;" />
+                                            <img src="@imgSrc" class="rounded-circle" style="width:48px; height:48px; object-fit:cover;" />
                                         }
                                         else
                                         {

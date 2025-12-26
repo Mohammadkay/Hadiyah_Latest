@@ -17,7 +17,7 @@ namespace HadiyahDomain.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
 
-        public string ImageBase64 { get; set; }
+        public string? ImagePath { get; set; }
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

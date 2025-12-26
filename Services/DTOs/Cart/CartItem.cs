@@ -13,7 +13,7 @@ namespace HadiyahServices.DTOs.Cart
         public decimal Price { get; set; }
         public long Quantity { get; set; }
         public int StockQuantity { get; set; }
-        public string ImageBase64 { get; set; }
+        public string? ImagePath { get; set; }
 
         public decimal Total => Price * Quantity;
     }

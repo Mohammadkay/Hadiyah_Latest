@@ -4,6 +4,7 @@
     ViewBag.Title = Model.Name;
     var isOutOfStock = Model.StockQuantity <= 0;
     var isLowStock = Model.StockQuantity > 0 && Model.StockQuantity <= 5;
+    var imageSrc = !string.IsNullOrEmpty(Model.ImagePath) ? Model.ImagePath : null;
 }
 
 <div class="py-5">
@@ -25,9 +26,9 @@
 
                     <!-- Image -->
                     <div class="col-md-5 text-center">
-                        @if (!string.IsNullOrEmpty(Model.ImageBase64))
+                        @if (!string.IsNullOrEmpty(imageSrc))
                         {
-                            <img src="data:image/png;base64,@Model.ImageBase64"
+                            <img src="@imageSrc"
                                  class="img-fluid rounded"
                                  style="max-height:380px; object-fit:cover;" />
                         }

@@ -24,11 +24,12 @@
     <tbody>
         @foreach (var p in Model)
         {
+            var imgSrc = !string.IsNullOrEmpty(p.ImagePath) ? p.ImagePath : null;
             <tr>
                 <td>
-                    @if (!string.IsNullOrEmpty(p.ImageBase64))
+                    @if (!string.IsNullOrEmpty(imgSrc))
                     {
-                        <img src="data:image/png;base64,@p.ImageBase64" width="60" style="border-radius:5px;" />
+                        <img src="@imgSrc" width="60" style="border-radius:5px;" />
                     }
                 </td>
                 <td>@p.Name</td>
