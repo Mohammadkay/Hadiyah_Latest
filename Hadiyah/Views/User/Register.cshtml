@@ -90,14 +90,23 @@
 
             <div class="mb-3">
                 <label class="form-label">Phone Number</label>
-                <input asp-for="PhoneNumber" class="form-control" placeholder="Your phone number" />
+                <input asp-for="PhoneNumber"
+                       type="tel"
+                       class="form-control"
+                       placeholder="07XXXXXXXX"
+                       inputmode="numeric"
+                       maxlength="10" />
                 <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                <div id="phoneHint" class="small text-muted mt-1">Format: 07 followed by 8 digits.</div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Password</label>
-                <input asp-for="Password" type="password" class="form-control" placeholder="********" />
+                <input asp-for="Password" type="password" class="form-control" placeholder="********"
+                       pattern="^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{7,}$"
+                       title="At least 7 characters, include an uppercase and a special character." />
                 <span asp-validation-for="Password" class="text-danger small"></span>
+                <div id="passwordHint" class="small text-muted mt-1">At least 7 chars, 1 uppercase, 1 special.</div>
             </div>
 
             <div class="mb-3">
@@ -106,7 +115,6 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
             </div>
 
-            <!-- Validation summary -->
             <div class="text-danger mb-3">
                 @Html.ValidationSummary()
             </div>

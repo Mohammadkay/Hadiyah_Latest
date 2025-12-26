@@ -16,6 +16,7 @@ namespace HadiyahMigrations
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<OrderRecipient> OrderRecipients { get; set; }
+        public DbSet<Otp> Otps { get; set; }
 
 
 
@@ -43,6 +44,10 @@ namespace HadiyahMigrations
             .HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId);
+
+            modelBuilder.Entity<User>().HasIndex(x => x.Email).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(x => x.PhoneNumber).IsUnique();
+            modelBuilder.Entity<Otp>().HasIndex(o => o.Code);
         }
     }
 }

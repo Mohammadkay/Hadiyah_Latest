@@ -127,6 +127,10 @@
                         {
                             <p class="mb-1 text-muted small">@recipient.ShippingAddress</p>
                         }
+                        @if (recipient.GiftArrivalDate.HasValue)
+                        {
+                            <p class="mb-1 text-muted small">Gift arrival date: @recipient.GiftArrivalDate.Value.ToString("yyyy-MM-dd")</p>
+                        }
                         @if (!string.IsNullOrEmpty(recipient.Message))
                         {
                             <p class="mt-2 small"><em>"@recipient.Message"</em></p>

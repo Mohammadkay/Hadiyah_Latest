@@ -87,6 +87,14 @@
                                     <span class="text-danger small d-block mt-1" asp-validation-for="RecipientPhone"></span>
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label">Gift arrival date</label>
+                                    <input class="form-control" asp-for="GiftArrivalDate" type="date"
+                                           min="@DateTime.Now.Date.AddDays(2).ToString("yyyy-MM-dd")" />
+                                    <span class="text-danger small d-block mt-1" asp-validation-for="GiftArrivalDate"></span>
+                                    <div class="small text-muted mt-1">Select a date at least 2 days from today.</div>
+                                </div>
+
                                 <div class="mb-0">
                                     <label class="form-label">Gift message</label>
                                     <textarea class="form-control" asp-for="GiftMessage" rows="3"
@@ -198,10 +206,25 @@
         function toggleGiftSection() {
             const checkbox = document.getElementById('IsGiftSwitch');
             const section = document.getElementById('giftSection');
+            const cash = document.getElementById('payCash');
+            const card = document.getElementById('payCard');
             if (!checkbox || !section) {
                 return;
             }
             section.style.display = checkbox.checked ? 'block' : 'none';
+            if (checkbox.checked) {
+                if (cash) {
+                    cash.checked = false;
+                    cash.disabled = true;
+                }
+                if (card) {
+                    card.checked = true;
+                }
+            } else {
+                if (cash) {
+                    cash.disabled = false;
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {

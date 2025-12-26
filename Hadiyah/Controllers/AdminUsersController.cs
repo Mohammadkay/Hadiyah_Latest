@@ -59,12 +59,23 @@ namespace Hadiyah.Controllers
                 return View(model);
             }
 
+            var phone = model.PhoneNumber?.Trim();
+            if (!string.IsNullOrWhiteSpace(phone))
+            {
+                var existingPhone = await _userRepository.GetByPhoneAsync(phone);
+                if (existingPhone != null)
+                {
+                    ModelState.AddModelError(nameof(model.PhoneNumber), "Phone number already exists.");
+                    return View(model);
+                }
+            }
+
             var admin = new User
             {
                 FirstName = model.FirstName.Trim(),
                 LastName = model.LastName.Trim(),
                 Email = model.Email.Trim().ToLowerInvariant(),
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = phone,
                 RoleId = (int)UserRole.Admin,
                 IsActive = true
             };

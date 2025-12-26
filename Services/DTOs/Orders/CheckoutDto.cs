@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,6 +24,9 @@ namespace HadiyahServices.DTOs.Orders
         [MaxLength(500, ErrorMessage = "Gift message is too long.")]
         public string? GiftMessage { get; set; }
 
+        [DataType(DataType.Date)]
+        public DateTime? GiftArrivalDate { get; set; }
+
         [Required(ErrorMessage = "Select a payment method.")]
         public string PaymentMethod { get; set; } = "Cash";
 
@@ -43,9 +47,28 @@ namespace HadiyahServices.DTOs.Orders
                         "Recipient email is required when sending a gift.",
                         new[] { nameof(RecipientEmail) });
                 }
+
+                if (!GiftArrivalDate.HasValue)
+                {
+                    yield return new ValidationResult(
+                        "Gift arrival date is required when sending a gift.",
+                        new[] { nameof(GiftArrivalDate) });
+                }
+                else if (GiftArrivalDate.Value.Date < DateTime.UtcNow.Date.AddDays(2))
+                {
+                    yield return new ValidationResult(
+                        "Gift arrival date must be at least 2 days from today.",
+                        new[] { nameof(GiftArrivalDate) });
+                }
             }
 
             var method = (PaymentMethod ?? string.Empty).Trim().ToLowerInvariant();
+            if (IsGift && method != "card")
+            {
+                yield return new ValidationResult(
+                    "Gift orders must be paid online.",
+                    new[] { nameof(PaymentMethod) });
+            }
             if (method != "cash" && method != "card")
             {
                 yield return new ValidationResult(

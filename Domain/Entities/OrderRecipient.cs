@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace HadiyahDomain.Entities
 {
@@ -21,6 +22,8 @@ namespace HadiyahDomain.Entities
 
         [StringLength(300)]
         public string? ShippingAddress { get; set; }
+
+        public DateTime? GiftArrivalDate { get; set; }
 
         public long OrderId { get; set; }
         public virtual Order Order { get; set; }

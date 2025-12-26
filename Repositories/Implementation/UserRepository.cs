@@ -18,6 +18,13 @@ namespace HadiyahRepositories.Implementation
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
+        public async Task<User> GetByPhoneAsync(string phoneNumber)
+        {
+            return await _dbSet
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+        }
+
         public async Task<IEnumerable<User>> GetAllWithRolesAsync()
         {
             return await _dbSet

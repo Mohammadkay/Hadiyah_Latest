@@ -1,0 +1,33 @@
+@model HadiyahServices.DTOs.User.VerifyOtpDto
+@{
+    ViewBag.Title = "Verify Code";
+}
+
+<div class="auth-wrapper" style="max-width:480px; margin:60px auto;">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Verify Code</h2>
+        <p class="text-muted mb-0">Enter the 6-digit code sent to your email.</p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 p-4">
+        <form asp-action="VerifyOtp" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Verification Code</label>
+                <input asp-for="Code"
+                       class="form-control"
+                       placeholder="6-digit code"
+                       inputmode="numeric"
+                       maxlength="6" />
+                <span asp-validation-for="Code" class="text-danger small"></span>
+            </div>
+
+            <button class="btn btn-primary w-100 rounded-pill">Verify</button>
+
+            <div class="text-center mt-3">
+                <a asp-action="ForgotPassword" class="small">Resend code</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -91,6 +91,11 @@ namespace Hadiyah.Controllers
             var total = cart.Sum(x => x.Total);
             var paymentMethod = (dto.PaymentMethod ?? "Cash").Trim();
             var requiresCardPayment = paymentMethod.Equals("Card", StringComparison.OrdinalIgnoreCase);
+            if (dto.IsGift)
+            {
+                paymentMethod = "Card";
+                requiresCardPayment = true;
+            }
             var userName = User.FindFirstValue(ClaimTypes.Name) ?? "Valued Customer";
             var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? "support@hadiyah.com";
             var fallbackPhone = "N/A";
@@ -135,7 +140,8 @@ namespace Hadiyah.Controllers
                 Email = resolvedEmail,
                 Phone = resolvedPhone,
                 Message = dto.IsGift ? dto.GiftMessage : null,
-                ShippingAddress = shippingAddress
+                ShippingAddress = shippingAddress,
+                GiftArrivalDate = dto.GiftArrivalDate?.Date
             };
 
 

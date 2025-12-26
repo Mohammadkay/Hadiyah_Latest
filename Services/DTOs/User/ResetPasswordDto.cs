@@ -1,24 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Hadiyah.Models
+namespace HadiyahServices.DTOs.User
 {
-    public class AdminCreateUserViewModel
+    public class ResetPasswordDto
     {
-        [Required]
-        [StringLength(50)]
-        public string FirstName { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string LastName { get; set; }
-
         [Required]
         [EmailAddress]
         public string Email { get; set; }
 
-        [Phone]
-        [Display(Name = "Phone number")]
-        public string? PhoneNumber { get; set; }
+        [Required]
+        [StringLength(6, MinimumLength = 6, ErrorMessage = "Code must be 6 characters.")]
+        public string Code { get; set; }
 
         [Required]
         [StringLength(100, MinimumLength = 7, ErrorMessage = "Password must be at least 7 characters.")]
@@ -26,9 +18,8 @@ namespace Hadiyah.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        [Required]
-        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
         [DataType(DataType.Password)]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
     }
 }

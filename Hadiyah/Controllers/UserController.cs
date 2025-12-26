@@ -11,6 +11,8 @@ namespace Hadiyah.Controllers
     public class UserController : Controller
     {
         private readonly IAuthService _authService;
+        private const string ResetEmailSessionKey = "ResetEmail";
+        private const string ResetCodeSessionKey = "ResetCode";
 
         public UserController(IAuthService authService)
         {
@@ -124,6 +126,115 @@ namespace Hadiyah.Controllers
             TempData["Alert.Type"] = "error";
             TempData["Alert.Title"] = "Access denied";
             TempData["Alert.Message"] = message ?? "You are not authorized to view that page.";
+            return RedirectToAction("Login");
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var normalizedEmail = email?.Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(normalizedEmail))
+            {
+                ModelState.AddModelError(string.Empty, "Email is required.");
+                return View();
+            }
+
+            var result = await _authService.ForgotPassword(normalizedEmail);
+
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError(string.Empty, result.Error);
+                return View();
+            }
+
+            HttpContext.Session.SetString(ResetEmailSessionKey, normalizedEmail);
+            HttpContext.Session.Remove(ResetCodeSessionKey);
+            return RedirectToAction("VerifyOtp");
+        }
+
+        [HttpGet]
+        public IActionResult VerifyOtp()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Session.GetString(ResetEmailSessionKey)))
+                return RedirectToAction("ForgotPassword");
+
+            return View(new VerifyOtpDto());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> VerifyOtp(VerifyOtpDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var email = HttpContext.Session.GetString(ResetEmailSessionKey);
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                ModelState.AddModelError(string.Empty, "Session expired. Please start again.");
+                return View(dto);
+            }
+
+            var result = await _authService.VerifyResetCode(email, dto.Code);
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError(string.Empty, result.Error);
+                return View(dto);
+            }
+
+            HttpContext.Session.SetString(ResetCodeSessionKey, dto.Code.Trim());
+            return RedirectToAction("ResetPassword");
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword()
+        {
+            var email = HttpContext.Session.GetString(ResetEmailSessionKey);
+            var code = HttpContext.Session.GetString(ResetCodeSessionKey);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
+                return RedirectToAction("ForgotPassword");
+
+            return View(new ResetPasswordFormDto());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordFormDto dto)
+        {
+            if (!ModelState.IsValid)
+                return View(dto);
+
+            var email = HttpContext.Session.GetString(ResetEmailSessionKey);
+            var code = HttpContext.Session.GetString(ResetCodeSessionKey);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
+            {
+                ModelState.AddModelError(string.Empty, "Session expired. Please start again.");
+                return View(dto);
+            }
+
+            var resetDto = new ResetPasswordDto
+            {
+                Email = email,
+                Code = code,
+                Password = dto.Password,
+                ConfirmPassword = dto.ConfirmPassword
+            };
+
+            var result = await _authService.ResetPassword(resetDto);
+            if (!result.IsSuccess)
+            {
+                ModelState.AddModelError(string.Empty, result.Error);
+                return View(dto);
+            }
+
+            HttpContext.Session.Remove(ResetEmailSessionKey);
+            HttpContext.Session.Remove(ResetCodeSessionKey);
+
+            TempData["Success"] = "Password reset successful. Please login.";
             return RedirectToAction("Login");
         }
 

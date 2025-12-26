@@ -6,5 +6,6 @@ namespace HadiyahRepositories.Interfaces
     {
         Task<User> GetByEmailAsync(string email);
         Task<IEnumerable<User>> GetAllWithRolesAsync();
+        Task<User> GetByPhoneAsync(string phoneNumber);
     }
 }
