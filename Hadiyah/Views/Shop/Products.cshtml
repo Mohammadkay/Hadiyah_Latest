@@ -1,11 +1,22 @@
-@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
+@model HadiyahServices.DTOs.Product.ProductPagedResultDto
 
 @{
     ViewBag.Title ??= "Products";
-    var hasItems = Model != null && Model.Any();
+    var items = Model?.Items ?? Enumerable.Empty<HadiyahServices.DTOs.Product.ProductListDto>();
+    var hasItems = items.Any();
     var heading = ViewBag.ProductHeading as string ?? "Available Gifts";
     var supportingText = ViewBag.ProductSubtitle as string
-        ?? (hasItems ? $"{Model.Count()} item(s) found" : "No products in this category yet.");
+        ?? (hasItems ? $"{items.Count()} item(s) found" : "No products in this category yet.");
+    var currentPage = Model?.Page ?? 1;
+    var pageSize = Model?.PageSize ?? 12;
+    var totalPages = Model?.TotalPages ?? 0;
+    int startPage = Math.Max(1, currentPage - 2);
+    int endPage = Math.Min(totalPages, currentPage + 2);
+    var actionName = ViewBag.PageAction as string ?? "Products";
+    var categoryId = ViewBag.CategoryId as long?;
+    string PageUrl(int targetPage) => actionName == "Products"
+        ? (Url.Action(actionName, new { categoryId, page = targetPage, pageSize }) ?? "#")
+        : (Url.Action(actionName, new { page = targetPage, pageSize }) ?? "#");
 }
 
 <div class="py-5">
@@ -18,7 +29,7 @@
         </div>
 
         <div>
-            <a asp-action="Index"
+            <a asp-action="Categories"
                class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1">
                 <span class="me-1">&larr;</span> Back to categories
             </a>
@@ -35,7 +46,7 @@
     else
     {
         <div class="row g-4">
-            @foreach (var p in Model)
+            @foreach (var p in items)
             {
                 var imgSrc = !string.IsNullOrEmpty(p.ImagePath) ? p.ImagePath : null;
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
@@ -76,5 +87,25 @@
                 </div>
             }
         </div>
+
+        @if (totalPages > 1)
+        {
+            <nav class="d-flex justify-content-center mt-4">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@(currentPage == 1 ? "#" : PageUrl(currentPage - 1))" tabindex="-1">Previous</a>
+                    </li>
+                    @for (var i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link" href="@PageUrl(i)">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@(currentPage == totalPages ? "#" : PageUrl(currentPage + 1))">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
     }
 </div>

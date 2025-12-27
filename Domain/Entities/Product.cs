@@ -19,6 +19,7 @@ namespace HadiyahDomain.Entities
 
         public string? ImagePath { get; set; }
         public int StockQuantity { get; set; }
+        public int SoldCount { get; set; } = 0;
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

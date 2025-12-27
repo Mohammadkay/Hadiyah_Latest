@@ -51,9 +51,15 @@
                         }
 
                         <div class="d-flex align-items-center gap-3 mt-3 mb-1">
-                            <h3 class="fw-bold mb-0">@Model.Price.ToString("0.00") JOD</h3>
+                            <h3 class="fw-bold mb-0">
+                                <span id="totalPrice"
+                                      data-unit-price="@Model.Price.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)">
+                                    @Model.Price.ToString("0.00")
+                                </span> JOD
+                            </h3>
                             <span class="badge text-bg-light text-muted border fw-normal">VAT included</span>
                         </div>
+                        <div class="text-muted small">Unit price: @Model.Price.ToString("0.00") JOD</div>
 
                         <div class="mt-2 mb-4">
                             @if (!isOutOfStock)
@@ -102,9 +108,7 @@
                                 </button>
                             </form>
 
-                            <button class="btn btn-outline-secondary px-4" @(isOutOfStock ? "disabled" : null)>
-                                Buy as Gift
-                            </button>
+             
                         </div>
 
 
@@ -117,6 +121,23 @@
 </div>
 @section Scripts {
         <script>
+            function updateTotalPrice() {
+                const input = document.getElementById('qtyInput');
+                const total = document.getElementById('totalPrice');
+                if (!input || !total) {
+                    return;
+                }
+
+                const unitPrice = parseFloat(total.getAttribute('data-unit-price') || '0');
+                let qty = parseInt(input.value || '1', 10);
+                if (isNaN(qty) || qty < 1) {
+                    qty = 1;
+                }
+
+                const result = unitPrice * qty;
+                total.textContent = result.toFixed(2);
+            }
+
             function changeQty(delta) {
                 const input = document.getElementById('qtyInput');
                 if (!input || input.disabled) {
@@ -138,6 +159,15 @@
                 }
 
                 input.value = value;
+                updateTotalPrice();
             }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const input = document.getElementById('qtyInput');
+                if (input) {
+                    input.addEventListener('input', updateTotalPrice);
+                }
+                updateTotalPrice();
+            });
         </script>
 }

@@ -153,6 +153,7 @@ namespace Hadiyah.Controllers
                 product.StockQuantity -= (int)item.Quantity;
                 if (product.StockQuantity < 0)
                     product.StockQuantity = 0;
+                product.SoldCount += (int)item.Quantity;
 
                 await _productRepository.UpdateAsync(product);
             }
@@ -238,5 +239,6 @@ namespace Hadiyah.Controllers
             TempData["OrderSuccess"] = "Payment completed successfully!";
             return RedirectToAction("Confirmation");
         }
+
     }
 }

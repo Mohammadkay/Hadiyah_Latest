@@ -1,7 +1,14 @@
-﻿@model IEnumerable<HadiyahServices.DTOs.Product.ProductListDto>
+@model HadiyahServices.DTOs.Product.ProductPagedResultDto
 
 @{
     ViewBag.Title = "Products";
+    var items = Model?.Items ?? Enumerable.Empty<HadiyahServices.DTOs.Product.ProductListDto>();
+    var currentPage = Model?.Page ?? 1;
+    var pageSize = Model?.PageSize ?? 20;
+    var totalPages = Model?.TotalPages ?? 0;
+    int startPage = Math.Max(1, currentPage - 2);
+    int endPage = Math.Min(totalPages, currentPage + 2);
+    string PageUrl(int targetPage) => Url.Action("Index", new { page = targetPage, pageSize }) ?? "#";
 }
 
 <h2 class="mb-4">Products</h2>
@@ -22,7 +29,7 @@
     </thead>
 
     <tbody>
-        @foreach (var p in Model)
+        @foreach (var p in items)
         {
             var imgSrc = !string.IsNullOrEmpty(p.ImagePath) ? p.ImagePath : null;
             <tr>
@@ -45,3 +52,23 @@
         }
     </tbody>
 </table>
+
+@if (totalPages > 1)
+{
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-sm mb-0">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="@(currentPage == 1 ? "#" : PageUrl(currentPage - 1))" tabindex="-1">Previous</a>
+            </li>
+            @for (var i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" href="@PageUrl(i)">@i</a>
+                </li>
+            }
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="page-link" href="@(currentPage == totalPages ? "#" : PageUrl(currentPage + 1))">Next</a>
+            </li>
+        </ul>
+    </nav>
+}

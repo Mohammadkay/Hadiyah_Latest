@@ -1,9 +1,15 @@
+using Hadiyah.Models;
+using HadiyahDomain.Entities;
+using HadiyahRepositories.Interfaces;
 using HadiyahServices.DTOs.enums;
 using HadiyahServices.DTOs.User;
+using HadiyahServices.Implementation;
 using HadiyahServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Hadiyah.Controllers
@@ -11,12 +17,18 @@ namespace Hadiyah.Controllers
     public class UserController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IUserRepository _userRepository;
+        private readonly TokenService _tokenService;
+        private readonly PasswordHasher<User> _passwordHasher;
         private const string ResetEmailSessionKey = "ResetEmail";
         private const string ResetCodeSessionKey = "ResetCode";
 
-        public UserController(IAuthService authService)
+        public UserController(IAuthService authService, IUserRepository userRepository, TokenService tokenService)
         {
             _authService = authService;
+            _userRepository = userRepository;
+            _tokenService = tokenService;
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         [HttpGet]
@@ -107,9 +119,16 @@ namespace Hadiyah.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            return View();
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var model = BuildProfileViewModel(user);
+            return View(model);
         }
 
         [Authorize]
@@ -238,5 +257,137 @@ namespace Hadiyah.Controllers
             return RedirectToAction("Login");
         }
 
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile([Bind(Prefix = "Profile")] ProfileUpdateViewModel profile)
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            profile.Email = profile.Email?.Trim().ToLowerInvariant();
+            profile.PhoneNumber = profile.PhoneNumber?.Trim();
+            if (string.IsNullOrWhiteSpace(profile.PhoneNumber))
+            {
+                profile.PhoneNumber = null;
+            }
+
+            ModelState.Clear();
+            TryValidateModel(profile, "Profile");
+
+            if (!ModelState.IsValid)
+            {
+                return View("Profile", BuildProfileViewModel(user, profile, new ChangePasswordViewModel()));
+            }
+
+            var existingUser = await _userRepository.GetByEmailAsync(profile.Email);
+            if (existingUser != null && existingUser.Id != user.Id)
+            {
+                ModelState.AddModelError("Profile.Email", "Email already exists.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(profile.PhoneNumber))
+            {
+                var existingPhone = await _userRepository.GetByPhoneAsync(profile.PhoneNumber);
+                if (existingPhone != null && existingPhone.Id != user.Id)
+                {
+                    ModelState.AddModelError("Profile.PhoneNumber", "Phone number already exists.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Profile", BuildProfileViewModel(user, profile, new ChangePasswordViewModel()));
+            }
+
+            user.Email = profile.Email;
+            user.PhoneNumber = profile.PhoneNumber;
+            await _userRepository.UpdateAsync(user);
+
+            await RefreshUserTokenAsync(user.Email);
+
+            TempData["ProfileMessage"] = "Profile updated successfully.";
+            TempData["ProfileMessageType"] = "success";
+            return RedirectToAction("Profile");
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword([Bind(Prefix = "Password")] ChangePasswordViewModel password)
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View("Profile", BuildProfileViewModel(user, null, password));
+            }
+
+            var verification = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password.CurrentPassword);
+            if (verification != PasswordVerificationResult.Success)
+            {
+                ModelState.AddModelError("Password.CurrentPassword", "Current password is incorrect.");
+                return View("Profile", BuildProfileViewModel(user, null, password));
+            }
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, password.NewPassword);
+            await _userRepository.UpdateAsync(user);
+
+            TempData["ProfileMessage"] = "Password updated successfully.";
+            TempData["ProfileMessageType"] = "success";
+            return RedirectToAction("Profile");
+        }
+
+        private async Task<User?> GetCurrentUserAsync()
+        {
+            var userIdClaim = User.FindFirst("UserId")?.Value;
+            if (string.IsNullOrWhiteSpace(userIdClaim) || !long.TryParse(userIdClaim, out var userId))
+            {
+                return null;
+            }
+
+            return await _userRepository.GetByIdAsync(userId);
+        }
+
+        private UserProfileViewModel BuildProfileViewModel(User user, ProfileUpdateViewModel? profile = null, ChangePasswordViewModel? password = null)
+        {
+            var displayName = $"{user.FirstName} {user.LastName}".Trim();
+
+            return new UserProfileViewModel
+            {
+                DisplayName = string.IsNullOrWhiteSpace(displayName) ? "Valued Customer" : displayName,
+                Profile = profile ?? new ProfileUpdateViewModel
+                {
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber
+                },
+                Password = password ?? new ChangePasswordViewModel()
+            };
+        }
+
+        private async Task RefreshUserTokenAsync(string email)
+        {
+            var updatedUser = await _userRepository.GetByEmailAsync(email);
+            if (updatedUser?.Role == null)
+            {
+                return;
+            }
+
+            var token = _tokenService.GenerateToken(updatedUser);
+            Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                IsEssential = true
+            });
+        }
     }
 }

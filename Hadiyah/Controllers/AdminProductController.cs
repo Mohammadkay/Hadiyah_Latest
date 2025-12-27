@@ -17,10 +17,15 @@ namespace Hadiyah.Controllers
             _categoryService = categoryService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 20)
         {
-            var products = await _productService.GetAllAsync();
-            return View(products.Data);
+            var response = await _productService.GetFilteredPagedAsync(null, null, null, "newest", page, pageSize);
+            var model = response.Data ?? new ProductPagedResultDto
+            {
+                Page = page,
+                PageSize = pageSize
+            };
+            return View(model);
         }
 
         public async Task<IActionResult> Create()

@@ -1,16 +1,25 @@
-@using System.Security.Claims
+@model Hadiyah.Models.UserProfileViewModel
 @{
     ViewBag.Title = "Your Profile";
-    var displayName = User.Identity?.Name ?? "Valued Customer";
-    var displayEmail = User.FindFirstValue(ClaimTypes.Email) ?? "Not specified";
+    var displayName = string.IsNullOrWhiteSpace(Model.DisplayName) ? "Valued Customer" : Model.DisplayName;
+    var displayEmail = Model.Profile?.Email ?? "Not specified";
+    var displayPhone = string.IsNullOrWhiteSpace(Model.Profile?.PhoneNumber) ? "Not specified" : Model.Profile.PhoneNumber;
     var avatarInitial = "U";
     if (!string.IsNullOrWhiteSpace(displayName))
     {
         avatarInitial = char.ToUpperInvariant(displayName.Trim()[0]).ToString();
     }
+    var flash = TempData["ProfileMessage"] as string;
+    var flashType = TempData["ProfileMessageType"] as string ?? "info";
 }
 
 <div class="py-5 profile-page">
+    @if (!string.IsNullOrWhiteSpace(flash))
+    {
+        <div class="alert alert-@flashType rounded-4">
+            @flash
+        </div>
+    }
     <div class="row g-4">
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
@@ -37,24 +46,89 @@
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold mb-3">Account details</h5>
-                    <div class="row g-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">Contact details</h5>
+                        <span class="badge text-bg-light text-muted">Update anytime</span>
+                    </div>
+                    <p class="text-muted small mb-4">
+                        Keep your contact info current so we can reach you about orders and deliveries.
+                    </p>
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <small class="text-muted text-uppercase">Full name</small>
                             <p class="fw-semibold mb-0">@displayName</p>
                         </div>
                         <div class="col-md-6">
-                            <small class="text-muted text-uppercase">Email</small>
-                            <p class="fw-semibold mb-0">@displayEmail</p>
+                            <small class="text-muted text-uppercase">Phone</small>
+                            <p class="fw-semibold mb-0">@displayPhone</p>
                         </div>
                     </div>
-                    <div class="alert alert-info mt-4 mb-0 rounded-4">
-                        More profile controls (addresses, saved recipients, and preferences) are coming soon.
-                    </div>
+                    <form asp-action="UpdateProfile" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Profile.Email" class="form-label">Email</label>
+                                <input asp-for="Profile.Email" type="email" class="form-control" placeholder="example@mail.com" autocomplete="email" />
+                                <span asp-validation-for="Profile.Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Profile.PhoneNumber" class="form-label">Phone number</label>
+                                <input asp-for="Profile.PhoneNumber"
+                                       type="tel"
+                                       class="form-control"
+                                       placeholder="07XXXXXXXX"
+                                       inputmode="numeric"
+                                       maxlength="10"
+                                       pattern="^07[0-9]{8}$"
+                                       title="Phone number must start with 07 and be 10 digits."
+                                       autocomplete="tel" />
+                                <span asp-validation-for="Profile.PhoneNumber" class="text-danger small"></span>
+                                <div class="small text-muted mt-1">Format: 07 followed by 8 digits.</div>
+                            </div>
+                            <div class="col-12 d-flex gap-2 mt-2">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4">Save changes</button>
+                                <span class="text-muted small align-self-center">We will keep your contact details up to date.</span>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Reset password</h5>
+                    <p class="text-muted small mb-4">
+                        Choose a strong password with an uppercase letter and a special character.
+                    </p>
+                    <form asp-action="ChangePassword" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Password.CurrentPassword" class="form-label">Current password</label>
+                            <input asp-for="Password.CurrentPassword" type="password" class="form-control" placeholder="********" autocomplete="current-password" />
+                            <span asp-validation-for="Password.CurrentPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password.NewPassword" class="form-label">New password</label>
+                            <input asp-for="Password.NewPassword"
+                                   type="password"
+                                   class="form-control"
+                                   placeholder="********"
+                                   pattern="^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{7,}$"
+                                   minlength="7"
+                                   title="At least 7 characters, include an uppercase and a special character."
+                                   autocomplete="new-password" />
+                            <span asp-validation-for="Password.NewPassword" class="text-danger small"></span>
+                            <div class="small text-muted mt-1">At least 7 chars, 1 uppercase, 1 special character.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Password.ConfirmPassword" class="form-label">Confirm new password</label>
+                            <input asp-for="Password.ConfirmPassword" type="password" class="form-control" placeholder="********" autocomplete="new-password" />
+                            <span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger rounded-pill px-4">Update password</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold mb-0">Recent activity</h5>
@@ -68,3 +142,45 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const phoneInput = document.querySelector('input[name="Profile.PhoneNumber"]');
+            const newPasswordInput = document.querySelector('input[name="Password.NewPassword"]');
+            const confirmPasswordInput = document.querySelector('input[name="Password.ConfirmPassword"]');
+
+            function toggleValidation(input, isValid) {
+                if (!input) return;
+                input.classList.remove("is-valid", "is-invalid");
+                if (input.value.trim().length === 0) return;
+                input.classList.add(isValid ? "is-valid" : "is-invalid");
+            }
+
+            function validatePhone() {
+                if (!phoneInput) return;
+                const value = phoneInput.value.trim();
+                if (!value) {
+                    toggleValidation(phoneInput, true);
+                    return;
+                }
+                toggleValidation(phoneInput, /^07\d{8}$/.test(value));
+            }
+
+            function validatePassword() {
+                if (!newPasswordInput) return;
+                const value = newPasswordInput.value;
+                toggleValidation(newPasswordInput, /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{7,}$/.test(value));
+                if (confirmPasswordInput) {
+                    const matches = confirmPasswordInput.value.length === 0 || confirmPasswordInput.value === value;
+                    toggleValidation(confirmPasswordInput, matches);
+                }
+            }
+
+            phoneInput?.addEventListener("input", validatePhone);
+            newPasswordInput?.addEventListener("input", validatePassword);
+            confirmPasswordInput?.addEventListener("input", validatePassword);
+        })();
+    </script>
+}

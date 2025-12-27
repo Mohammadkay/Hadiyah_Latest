@@ -144,7 +144,7 @@ namespace HadiyahServices.Implementation
             return BaseResponse<IEnumerable<ProductListDto>>.Success(result);
         }
 
-        public async Task<BaseResponse<ProductPagedResultDto>> GetFilteredPagedAsync(long? categoryId, decimal? minPrice, decimal? maxPrice, int page = 1, int pageSize = 12)
+        public async Task<BaseResponse<ProductPagedResultDto>> GetFilteredPagedAsync(long? categoryId, decimal? minPrice, decimal? maxPrice, string? sortBy, int page = 1, int pageSize = 12)
         {
             if (page < 1) page = 1;
             if (pageSize < 1) pageSize = 12;
@@ -156,10 +156,15 @@ namespace HadiyahServices.Implementation
 
             var total = await _productRepo.CountAsync(predicate);
             var skip = (page - 1) * pageSize;
+            var normalizedSort = sortBy?.Trim().ToLowerInvariant();
+
+            Func<IQueryable<Product>, IOrderedQueryable<Product>> orderBy = normalizedSort == "bestsellers"
+                ? q => q.OrderByDescending(p => p.SoldCount).ThenByDescending(p => p.CreatedAt)
+                : q => q.OrderByDescending(p => p.CreatedAt);
 
             var items = await _productRepo.GetAsync(
                 predicate: predicate,
-                orderBy: q => q.OrderByDescending(p => p.CreatedAt),
+                orderBy: orderBy,
                 include: q => q.Include(p => p.Category),
                 disableTracking: true,
                 skip: skip,

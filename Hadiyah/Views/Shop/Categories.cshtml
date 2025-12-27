@@ -1,0 +1,57 @@
+@model IEnumerable<HadiyahServices.DTOs.Category.CategoryListDto>
+
+@{
+    ViewBag.Title = "Categories";
+    var categories = Model ?? Enumerable.Empty<HadiyahServices.DTOs.Category.CategoryListDto>();
+    var hasItems = categories.Any();
+}
+
+<div class="py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold" style="color:#0F2237;">Browse Categories</h1>
+        </div>
+    </div>
+
+    @if (!hasItems)
+    {
+        <div class="bg-white rounded-4 shadow-sm p-5 text-center text-muted">
+            No categories available yet.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var c in categories)
+            {
+                var imgSrc = !string.IsNullOrEmpty(c.ImagePath) ? c.ImagePath : null;
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    <a asp-controller="Shop"
+                       asp-action="Products"
+                       asp-route-categoryId="@c.Id"
+                       class="text-decoration-none">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius:18px; overflow:hidden;">
+                            @if (!string.IsNullOrEmpty(imgSrc))
+                            {
+                                <img src="@imgSrc"
+                                     class="card-img-top"
+                                     style="height:180px; object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                     style="height:180px;">
+                                    <span class="text-muted small">No Image</span>
+                                </div>
+                            }
+
+                            <div class="card-body text-center">
+                                <h6 class="fw-semibold mb-0" style="color:#0F2237;">@c.Name</h6>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>
