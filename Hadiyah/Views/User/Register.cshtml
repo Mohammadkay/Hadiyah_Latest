@@ -95,7 +95,10 @@
                        class="form-control"
                        placeholder="07XXXXXXXX"
                        inputmode="numeric"
-                       maxlength="10" />
+                       maxlength="10"
+                       pattern="^07[0-9]{8}$"
+                       title="Phone number must start with 07 and be 10 digits."
+                       autocomplete="tel" />
                 <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                 <div id="phoneHint" class="small text-muted mt-1">Format: 07 followed by 8 digits.</div>
             </div>
@@ -130,3 +133,7 @@
 
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

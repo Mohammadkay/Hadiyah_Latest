@@ -31,6 +31,7 @@ namespace HadiyahServices.DTOs.User
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
+        [RegularExpression("^$|^07\\d{8}$", ErrorMessage = "Phone number must start with 07 and be 10 digits.")]
         public string? PhoneNumber { get; set; }
     }
 }
