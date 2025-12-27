@@ -73,7 +73,7 @@ namespace Hadiyah.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(CategoryUpdateDto dto, IFormFile imageFile)
+        public async Task<IActionResult> Edit(CategoryUpdateDto dto, IFormFile? imageFile)
         {
             if (!ModelState.IsValid)
                 return View(dto);

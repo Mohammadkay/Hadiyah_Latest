@@ -3,8 +3,12 @@
 @{
     ViewBag.Title = "Order #" + Model.Id;
     var recipient = Model.Recipient;
-    var expected = Model.OrderDate.AddDays(3);
-    var isPastDue = DateTime.UtcNow >= expected;
+    var expected = Model.ExpectedDeliveryDate != default
+        ? Model.ExpectedDeliveryDate.Date
+        : recipient?.GiftArrivalDate?.Date ?? Model.OrderDate.Date;
+    var now = DateTime.Now.Date;
+    var daysLeft = (expected - now).Days;
+    var isPastDue = daysLeft < 0;
     var statusLabel = (isPastDue && Model.Status != HadiyahDomain.enums.OrderStatus.Cancelled && Model.Status != HadiyahDomain.enums.OrderStatus.Completed)
         ? "Received"
         : Model.Status.ToString();
@@ -57,7 +61,7 @@
                         else
                         {
                             <span class="text-muted small ms-1">
-                                Arrives in @((expected - DateTime.UtcNow).Days + 1) day(s)
+                                @(daysLeft == 0 ? "Arrives today" : $"Arrives in {daysLeft} day(s)")
                             </span>
                         }
                     </p>
@@ -127,9 +131,9 @@
                         {
                             <p class="mb-1 text-muted small">@recipient.ShippingAddress</p>
                         }
-                        @if (recipient.GiftArrivalDate.HasValue)
+                        @if (Model.IsGift)
                         {
-                            <p class="mb-1 text-muted small">Gift arrival date: @recipient.GiftArrivalDate.Value.ToString("yyyy-MM-dd")</p>
+                            <p class="mb-1 text-muted small">Gift arrival date: @expected.ToString("yyyy-MM-dd")</p>
                         }
                         @if (!string.IsNullOrEmpty(recipient.Message))
                         {

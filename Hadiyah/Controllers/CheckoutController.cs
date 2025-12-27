@@ -41,7 +41,6 @@ namespace Hadiyah.Controllers
             return View(model);
         }
 
-        // POST: /Checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(CheckoutDto dto)
@@ -96,6 +95,11 @@ namespace Hadiyah.Controllers
                 paymentMethod = "Card";
                 requiresCardPayment = true;
             }
+            var expectedDeliveryDate = dto.IsGift ? dto.GiftArrivalDate?.Date : DateTime.Now.Date.AddDays(2);
+            if (!expectedDeliveryDate.HasValue)
+            {
+                expectedDeliveryDate = DateTime.Now.Date;
+            }
             var userName = User.FindFirstValue(ClaimTypes.Name) ?? "Valued Customer";
             var userEmail = User.FindFirstValue(ClaimTypes.Email) ?? "support@hadiyah.com";
             var fallbackPhone = "N/A";
@@ -120,6 +124,7 @@ namespace Hadiyah.Controllers
                 TotalAmount = total,
                 Status = requiresCardPayment ? OrderStatus.Pending : OrderStatus.Pending,
                 IsGift = dto.IsGift,
+                ExpectedDeliveryDate = expectedDeliveryDate.Value.Date,
                 OrderItems = new List<OrderItem>()
             };
 
@@ -141,7 +146,7 @@ namespace Hadiyah.Controllers
                 Phone = resolvedPhone,
                 Message = dto.IsGift ? dto.GiftMessage : null,
                 ShippingAddress = shippingAddress,
-                GiftArrivalDate = dto.GiftArrivalDate?.Date
+                GiftArrivalDate = dto.IsGift ? expectedDeliveryDate : null
             };
 
 
@@ -170,7 +175,6 @@ namespace Hadiyah.Controllers
             return RedirectToAction("Confirmation");
         }
 
-        // GET: /Checkout/Confirmation
         [HttpGet]
         public IActionResult Confirmation()
         {

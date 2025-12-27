@@ -24,7 +24,10 @@ namespace Hadiyah.Controllers
                 .OrderByDescending(o => o.OrderDate)
                 .Select(o =>
                 {
-                    var expected = o.OrderDate.AddDays(3);
+                    var expected = o.ExpectedDeliveryDate != default
+                        ? o.ExpectedDeliveryDate
+                        : o.Recipient?.GiftArrivalDate?.Date ?? o.OrderDate.Date;
+                    var now = DateTime.Now;
                     var customerName = o.User != null ? $"{o.User.FirstName} {o.User.LastName}" : "Customer";
                     var email = o.User?.Email ?? o.Recipient?.Email ?? "N/A";
                     var recipient = o.Recipient?.Name ?? (o.IsGift ? "Gift recipient" : customerName);
@@ -40,7 +43,7 @@ namespace Hadiyah.Controllers
                         IsGift = o.IsGift,
                         OrderDate = o.OrderDate,
                         ExpectedDeliveryDate = expected,
-                        IsOverdue = !isTerminal && DateTime.UtcNow > expected
+                        IsOverdue = !isTerminal && now.Date > expected.Date
                     };
                 })
                 .ToList();

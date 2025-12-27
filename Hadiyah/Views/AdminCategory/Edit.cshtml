@@ -4,67 +4,289 @@
     ViewBag.Title = "Edit Category";
 }
 
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-    <div>
-        <h2 class="fw-bold mb-1">Edit @Model.Name</h2>
-        <p class="text-muted mb-0">Update the display name, imagery, or toggle visibility in the storefront.</p>
-    </div>
-    <a asp-action="Index" class="btn btn-outline-secondary rounded-pill">&larr; Back</a>
-</div>
+<style>
+    .page-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+    }
 
-<form asp-action="Edit"
-      method="post"
-      enctype="multipart/form-data"
-      class="card border-0 shadow-sm rounded-4 p-4">
+    .cover-box {
+        aspect-ratio: 16 / 9;
+        max-height: 260px;
+        overflow: hidden;
+    }
 
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
+    .cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
 
-    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+    .dropzone {
+        border: 2px dashed rgba(0,0,0,.15);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        transition: .15s ease-in-out;
+        background: rgba(0,0,0,.02);
+        cursor: pointer;
+    }
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <label class="form-label fw-semibold">Category name</label>
-            <input asp-for="Name" class="form-control form-control-lg" />
-            <span class="text-danger small d-block mt-1" asp-validation-for="Name"></span>
-        </div>
-        <div class="col-lg-6">
-            <label class="form-label fw-semibold">Visibility</label>
-            <div class="form-check form-switch mt-2">
-                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
-                <label class="form-check-label">
-                    @((Model.IsActive ? "Active in shop" : "Hidden from customers"))
-                </label>
+        .dropzone.dragover {
+            border-color: rgba(13,110,253,.6);
+            background: rgba(13,110,253,.06);
+        }
+</style>
+
+<div class="page-header border-bottom mb-4">
+    <div class="container-fluid py-3">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="fw-bold mb-0">Edit Category</h2>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary-subtle text-secondary border">Hidden</span>
+                    }
+                </div>
+                <div class="text-muted mt-1">
+                    Update name, cover image, and visibility in the storefront.
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                    &larr; Back
+                </a>
+                <button form="editForm" type="submit" class="btn btn-primary rounded-pill px-4" id="btnSaveTop">
+                    <span class="spinner-border spinner-border-sm me-2 d-none" id="saveSpinnerTop" role="status" aria-hidden="true"></span>
+                    Save changes
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="row g-4 mt-1">
-        <div class="col-lg-6">
-            <label class="form-label fw-semibold">Current cover</label>
-            @if (!string.IsNullOrEmpty(Model.ImagePath))
-            {
-                <img src="@Model.ImagePath"
-                     alt="@Model.Name cover"
-                     class="img-fluid rounded-4 border"
-                     style="max-height:220px; object-fit:cover;" />
-            }
-            else
-            {
-                <div class="border rounded-4 d-flex align-items-center justify-content-center text-muted"
-                     style="height:220px;">
-                    No image uploaded
+<div class="container-fluid">
+    <form id="editForm"
+          asp-action="Edit"
+          method="post"
+          enctype="multipart/form-data"
+          class="card border-0 shadow-sm rounded-4 p-4">
+
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4" role="alert"></div>
+
+        <div class="row g-4">
+            <!-- Left: Basics -->
+            <div class="col-lg-6">
+                <div class="p-3 p-md-4 border rounded-4 h-100">
+                    <h5 class="fw-bold mb-3">Basics</h5>
+
+                    <label class="form-label fw-semibold">Category name</label>
+                    <input asp-for="Name" class="form-control form-control-lg" id="txtName" maxlength="150" />
+                    <div class="d-flex justify-content-between mt-1">
+                        <span class="text-danger small" asp-validation-for="Name"></span>
+                        <span class="text-muted small" id="nameCount"></span>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <label class="form-label fw-semibold mb-2">Visibility</label>
+                    <div class="d-flex align-items-center justify-content-between gap-3 border rounded-4 p-3">
+                        <div>
+                            <div class="fw-semibold" id="visibilityTitle">
+                                @(Model.IsActive ? "Active in shop" : "Hidden from customers")
+                            </div>
+                            <div class="text-muted small" id="visibilityHint">
+                                @(Model.IsActive
+                                                                ? "Customers can browse and purchase from this category."
+                                                                : "This category will not appear in the storefront.")
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch m-0">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="chkActive" />
+                        </div>
+                    </div>
                 </div>
-            }
-        </div>
-        <div class="col-lg-6">
-            <label class="form-label fw-semibold">Upload new image</label>
-            <input type="file" name="imageFile" class="form-control" accept="image/*" />
-            <div class="form-text">Leave blank to keep the current cover.</div>
-        </div>
-    </div>
+            </div>
 
-    <div class="text-end mt-4">
-        <button class="btn btn-primary px-4 rounded-pill">Save changes</button>
-    </div>
-</form>
+            <!-- Right: Media -->
+            <div class="col-lg-6">
+                <div class="p-3 p-md-4 border rounded-4 h-100">
+   
+                    <!-- Current / Preview -->
+                    <div class="cover-box rounded-4 border mb-3 bg-light d-flex align-items-center justify-content-center">
+                        @if (!string.IsNullOrEmpty(Model.ImagePath))
+                        {
+                            <img id="imgPreview" src="@Model.ImagePath" alt="@Model.Name cover" class="cover-img" />
+                        }
+                        else
+                        {
+                            <div id="noImageText" class="text-muted">No image uploaded</div>
+                            <img id="imgPreview" src="" alt="Preview" class="cover-img d-none" />
+                        }
+                    </div>
+
+                    <!-- Dropzone + input -->
+                    <div class="dropzone" id="dropzone">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="mt-1">
+                                <span class="badge text-bg-primary">Tip</span>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">Drag & drop an image here, or click to upload</div>
+                                <div class="text-muted small">
+                                    Recommended: JPG/PNG, wide (16:9). Leave blank to keep current cover.
+                                </div>
+                                <div class="text-muted small mt-2" id="fileMeta"></div>
+                            </div>
+                        </div>
+
+                        <input type="file"
+                               name="imageFile"
+                               class="form-control d-none"
+                               accept="image/*"
+                               id="imageFile" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            <button class="btn btn-primary rounded-pill px-4" id="btnSaveBottom" type="submit">
+                <span class="spinner-border spinner-border-sm me-2 d-none" id="saveSpinnerBottom" role="status" aria-hidden="true"></span>
+                Save changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const form = document.getElementById('editForm');
+
+            const txtName = document.getElementById('txtName');
+            const nameCount = document.getElementById('nameCount');
+
+            const chkActive = document.getElementById('chkActive');
+            const visibilityTitle = document.getElementById('visibilityTitle');
+            const visibilityHint = document.getElementById('visibilityHint');
+
+            const dropzone = document.getElementById('dropzone');
+            const imageInput = document.getElementById('imageFile');
+
+            const imgPreview = document.getElementById('imgPreview');
+            const noImageText = document.getElementById('noImageText');
+            const fileMeta = document.getElementById('fileMeta');
+
+            const chkRemoveImage = document.getElementById('chkRemoveImage');
+
+            const btnSaveTop = document.getElementById('btnSaveTop');
+            const btnSaveBottom = document.getElementById('btnSaveBottom');
+            const saveSpinnerTop = document.getElementById('saveSpinnerTop');
+            const saveSpinnerBottom = document.getElementById('saveSpinnerBottom');
+
+            function updateNameCount() {
+                const max = txtName.getAttribute('maxlength') || 0;
+                const len = (txtName.value || '').length;
+                nameCount.textContent = max ? `${len}/${max}` : `${len}`;
+            }
+
+            function updateVisibility() {
+                const active = chkActive.checked;
+                visibilityTitle.textContent = active ? 'Active in shop' : 'Hidden from customers';
+                visibilityHint.textContent = active
+                    ? 'Customers can browse and purchase from this category.'
+                    : 'This category will not appear in the storefront.';
+            }
+
+            function setPreview(file) {
+                if (!file) return;
+
+                // if user checked remove, uncheck it because they are uploading a new cover
+                if (chkRemoveImage) chkRemoveImage.checked = false;
+
+                const url = URL.createObjectURL(file);
+                imgPreview.src = url;
+                imgPreview.classList.remove('d-none');
+
+                if (noImageText) noImageText.classList.add('d-none');
+
+                const kb = Math.round(file.size / 1024);
+                fileMeta.textContent = `${file.name} • ${kb} KB`;
+            }
+
+            // Name counter
+            updateNameCount();
+            txtName.addEventListener('input', updateNameCount);
+
+            // Visibility label
+            updateVisibility();
+            chkActive.addEventListener('change', updateVisibility);
+
+            // Dropzone click -> open file dialog
+            dropzone.addEventListener('click', () => imageInput.click());
+
+            // Drag & drop
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+            dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+
+                const file = e.dataTransfer.files && e.dataTransfer.files[0];
+                if (file) {
+                    imageInput.files = e.dataTransfer.files; // assign dropped files
+                    setPreview(file);
+                }
+            });
+
+            // File input change -> preview
+            imageInput.addEventListener('change', () => {
+                const file = imageInput.files && imageInput.files[0];
+                if (file) setPreview(file);
+            });
+
+            // Remove image toggle -> clear preview (UI only)
+            if (chkRemoveImage) {
+                chkRemoveImage.addEventListener('change', () => {
+                    if (chkRemoveImage.checked) {
+                        // Clear chosen file
+                        imageInput.value = '';
+                        fileMeta.textContent = '';
+
+                        // Hide preview if it was from a new upload
+                        // Keep existing server image in place visually is optional; here we dim it:
+                        imgPreview.style.opacity = '0.35';
+                    } else {
+                        imgPreview.style.opacity = '1';
+                    }
+                });
+            }
+
+            // Disable double submit + show spinners
+            form.addEventListener('submit', () => {
+                btnSaveTop.disabled = true;
+                btnSaveBottom.disabled = true;
+                saveSpinnerTop.classList.remove('d-none');
+                saveSpinnerBottom.classList.remove('d-none');
+            });
+        })();
+    </script>
+}

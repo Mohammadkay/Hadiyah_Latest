@@ -20,6 +20,8 @@ namespace HadiyahDomain.Entities
 
         public bool IsGift { get; set; } = false;
 
+        public DateTime ExpectedDeliveryDate { get; set; }
+
         // NEW: Recipient object
         public virtual OrderRecipient? Recipient { get; set; }
 

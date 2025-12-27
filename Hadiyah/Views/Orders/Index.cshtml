@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "My Orders";
-    var now = DateTime.UtcNow;
+    var now = DateTime.Now.Date;
 }
 
 <div class="py-5">
@@ -44,8 +44,11 @@
                         <tbody>
                             @foreach (var o in Model)
                             {
-                                var expected = o.OrderDate.AddDays(3);
-                                var isPastDue = now >= expected;
+                                var expected = o.ExpectedDeliveryDate != default
+                                    ? o.ExpectedDeliveryDate.Date
+                                    : o.Recipient?.GiftArrivalDate?.Date ?? o.OrderDate.Date;
+                                var daysLeft = (expected - now).Days;
+                                var isPastDue = daysLeft < 0;
                                 var displayStatus = (isPastDue && o.Status != OrderStatus.Cancelled && o.Status != OrderStatus.Completed)
                                     ? "Received"
                                     : o.Status.ToString();
@@ -65,7 +68,9 @@
                                         <div class="small text-muted">
                                             @(isPastDue
                                                 ? "Should be delivered"
-                                                : $"Arrives in {(expected - now).Days + 1} day(s)")
+                                                : daysLeft == 0
+                                                    ? "Arrives today"
+                                                    : $"Arrives in {daysLeft} day(s)")
                                         </div>
                                     </td>
                                     <td>@(o.IsGift ? "Gift" : "Personal")</td>

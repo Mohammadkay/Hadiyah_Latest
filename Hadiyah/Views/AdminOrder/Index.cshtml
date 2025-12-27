@@ -40,10 +40,14 @@
         <tbody>
             @foreach (var order in Model)
             {
-                var expectedLabel = order.ExpectedDeliveryDate.ToString("yyyy-MM-dd");
-                var countdown = order.ExpectedDeliveryDate > DateTime.UtcNow
-                    ? $"Arrives in {(order.ExpectedDeliveryDate - DateTime.UtcNow).Days + 1} day(s)"
-                    : "Should be delivered";
+                var expectedDate = order.ExpectedDeliveryDate.Date;
+                var expectedLabel = expectedDate.ToString("yyyy-MM-dd");
+                var daysLeft = (expectedDate - DateTime.Now.Date).Days;
+                var countdown = daysLeft < 0
+                    ? "Should be delivered"
+                    : daysLeft == 0
+                        ? "Arrives today"
+                        : $"Arrives in {daysLeft} day(s)";
                 <tr class="@(order.IsOverdue ? "table-warning" : string.Empty)">
                     <td class="fw-semibold">#@order.Id</td>
                     <td>
